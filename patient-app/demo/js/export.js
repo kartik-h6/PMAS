@@ -28,7 +28,7 @@ function exportResearchData() {
   }));
 
   const exportPayload = {
-    study:           'PMAS-RIPER-MPharm',
+    study:           'PMAS-RESEARCH',
     study_id:        studyMeta.study_id,
     consent_ver:     cons.version   || null,
     lang_used:       cons.language  || lang,

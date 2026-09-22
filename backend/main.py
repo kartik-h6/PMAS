@@ -455,7 +455,7 @@ async def enroll_patient(
         known_allergies=enrollment.known_allergies,
         chronic_conditions=enrollment.chronic_conditions,
         consent_timestamp=datetime.now(timezone.utc),
-        consent_version="1.0-RIPER",
+        consent_version="1.0",
         consent_status=True
     )
     db.add(profile)
@@ -582,7 +582,7 @@ async def research_export(
     ]
 
     return {
-        "study": "PMAS-RIPER-MPharm",
+        "study": "PMAS-RESEARCH",
         "study_id": study.study_id,
         "study_day_at_export": study_day,
         "adherence": {

@@ -7,7 +7,7 @@
 /* ── Safe localStorage wrapper ───────────────────────────── */
 const DB = {
   PREFIX: 'pmas_',
-  VERSION: '1.0-RIPER',
+  VERSION: '1.1.0',
 
   get(k) {
     try {

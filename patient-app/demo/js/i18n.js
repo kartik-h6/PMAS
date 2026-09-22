@@ -11,7 +11,7 @@ const T = {
     app_title: "PMAS",
     app_subtitle: "Medication & Adherence Support",
     welcome_sub: "Good day",
-    badge_riper: "RIPER M.Pharm",
+    badge_study: "Independent Research",
 
     // Navigation
     nav_dash: "Home",
@@ -149,8 +149,8 @@ const T = {
     // Consent
     consent_title: "⚕️ Research Consent & Privacy",
     consent_study: "Study: Post-Counseling Medication Adherence Support (PMAS)",
-    consent_institution: "Institution: RIPER — Raghavendra Institute of Pharmaceutical Education and Research, Anantapur",
-    consent_dept: "Department: Pharmacy Practice (M.Pharm Dissertation Research)",
+    consent_institution: "Researcher: Kartik H — independent telepharmacy research project",
+    consent_dept: "Focus: Pharmacist-led counselling & adherence research",
     consent_data_handling: "Data Handling: Offline-first prototype with local-only data storage and no automatic server transmission. Research export removes all personal identifiers.",
     consent_intro: "This tool is a research prototype for academic evaluation. It is not a licensed medical device and does not replace clinical advice.",
     consent_check1: "I understand the purpose of this study.",
@@ -182,9 +182,9 @@ const T = {
     safety_logged: "Entry logged. Please monitor closely.",
 
     // Research Export
-    research_export_title: "M.Pharm Research Data Export",
+    research_export_title: "Research Data Export",
     research_export_desc1: "The export below contains no personal identifiers (name, phone, DOB, emergency contact, doctor names, or free-text notes removed).",
-    research_export_desc2: "Data is referenced by Study ID and Study Day rather than raw dates to minimise re-identification risk. This de-identified data may be shared with your RIPER research supervisor for dissertation analysis.",
+    research_export_desc2: "Data is referenced by Study ID and Study Day rather than raw dates to minimise re-identification risk. This de-identified data may be shared with the research team for study analysis.",
     export_research: "Export De-identified Research Data",
     export_ready: "De-identified export ready",
     copy_export: "Copy Export String",
@@ -210,7 +210,7 @@ const T = {
     // Data Erasure
     erase_title: "Right to Erasure",
     erase_desc_device: "Delete data stored on this device (profile, medications, symptom logs, appointments, adherence records, and consent).",
-    erase_desc_study: "Note: Deleting local data does not automatically withdraw you from the research study or erase data already exported and stored by the research team. To formally withdraw from the study, please contact your research supervisor.",
+    erase_desc_study: "Note: Deleting local data does not automatically withdraw you from the research study or erase data already exported and stored by the research team. To formally withdraw from the study, please contact the researcher.",
     erase_confirm: "This will permanently delete ALL your data from this device. This cannot be undone. Confirm deletion?",
     erase_btn: "🗑 Delete All My Data (Right to Erasure)",
 
@@ -260,7 +260,7 @@ const T = {
     app_title: "PMAS లైట్",
     app_subtitle: "మందు మరియు సంరక్షణ సహాయం",
     welcome_sub: "శుభదినం",
-    badge_riper: "RIPER M.Pharm",
+    badge_study: "స్వతంత్ర పరిశోధన",
 
     nav_dash: "హోమ్", nav_meds: "మందులు", nav_sym: "లక్షణాలు", nav_appts: "సందర్శనలు", nav_prof: "ప్రొఫైల్",
 
@@ -386,8 +386,8 @@ const T = {
 
     consent_title: "⚕️ పరిశోధన అనుమతి & గోప్యత",
     consent_study: "అధ్యయనం: కౌన్సెలింగ్ తర్వాత మందు సంరక్షణ సహాయం (PMAS)",
-    consent_institution: "సంస్థ: RIPER — రాఘవేంద్ర ఇన్‌స్టిట్యూట్ ఆఫ్ ఫార్మాస్యూటికల్ ఎడ్యుకేషన్ అండ్ రీసెర్చ్, అనంతపూర్",
-    consent_dept: "విభాగం: ఫార్మసీ ప్రాక్టీస్ (M.Pharm పరిశోధన)",
+    consent_institution: "పరిశోధకుడు: కార్తీక్ H — స్వతంత్ర టెలిఫార్మసీ పరిశోధనా ప్రాజెక్టు",
+    consent_dept: "ఫోకస్: ఫార్మాసిస్టు నేతృత్వంలో కౌన్సెలింగ్ & అనుకూలత పరిశోధన",
     consent_data_handling: "డేటా నిర్వహణ: ఆఫ్‌లైన్ ప్రోటోటైప్ — డేటా కేవలం ఈ పరికరంలో నిల్వ చేయబడుతుంది. సర్వర్‌కు పంపబడదు. పరిశోధన ఎగుమతి అన్ని వ్యక్తిగత గుర్తింపులను తొలగిస్తుంది.",
     consent_intro: "ఇది విద్యా మూల్యాంకనం కోసం ఒక పరిశోధనా ప్రోటోటైప్. ఇది లైసెన్స్ పొందిన వైద్య పరికరం కాదు మరియు వైద్య సలహాకు ప్రత్యామ్నాయం కాదు.",
     consent_check1: "ఈ అధ్యయన ఉద్దేశాన్ని నేను అర్థం చేసుకున్నాను.",
@@ -417,9 +417,9 @@ const T = {
     dismiss_seconds: "సె",
     safety_logged: "నమోదు చేయబడింది. దయచేసి జాగ్రత్తగా పరిశీలించండి.",
 
-    research_export_title: "M.Pharm పరిశోధన డేటా ఎగుమతి",
+    research_export_title: "పరిశోధన డేటా ఎగుమతి",
     research_export_desc1: "కింది ఎగుమతిలో వ్యక్తిగత గుర్తింపులు లేవు (పేరు, ఫోన్, పుట్టిన తేదీ, అత్యవసర సంప్రదింపు, డాక్టర్ పేర్లు తొలగించబడ్డాయి).",
-    research_export_desc2: "డేటా స్టడీ ID మరియు స్టడీ డే ద్వారా సూచించబడుతుంది. ఈ డేటా మీ RIPER పరిశోధన సూపర్‌వైజర్‌తో పంచుకోవచ్చు.",
+    research_export_desc2: "డేటా స్టడీ ID మరియు స్టడీ డే ద్వారా సూచించబడుతుంది. ఈ డేటా పరిశోధన బృందంతో పంచుకోవచ్చు.",
     export_research: "పరిశోధన డేటా ఎగుమతి",
     export_ready: "ఎగుమతి సిద్ధంగా ఉంది",
     copy_export: "ఎగుమతి స్ట్రింగ్ కాపీ చేయి",
@@ -443,7 +443,7 @@ const T = {
 
     erase_title: "సమాచార తొలగింపు హక్కు",
     erase_desc_device: "ఈ పరికరంలో నిల్వ చేయబడిన డేటాను తొలగించండి (ప్రొఫైల్, మందులు, లక్షణ నమోదులు, అపాయింట్‌మెంట్‌లు, సంరక్షణ రికార్డులు, అనుమతి).",
-    erase_desc_study: "గమనిక: స్థానిక డేటాను తొలగించడం అనేది పరిశోధన అధ్యయనం నుండి స్వయంచాలకంగా ఉపసంహరించుకోదు. అధ్యయనం నుండి ఉపసంహరించుకోవడానికి మీ సూపర్‌వైజర్‌ను సంప్రదించండి.",
+    erase_desc_study: "గమనిక: స్థానిక డేటాను తొలగించడం అనేది పరిశోధన అధ్యయనం నుండి స్వయంచాలకంగా ఉపసంహరించుకోదు. అధ్యయనం నుండి ఉపసంహరించుకోవడానికి పరిశోధకుడిని సంప్రదించండి.",
     erase_confirm: "ఇది ఈ పరికరం నుండి మీ అన్ని డేటాను శాశ్వతంగా తొలగిస్తుంది. ఇది రద్దు చేయలేరు. తొలగింపును నిర్ధారించాలా?",
     erase_btn: "🗑 నా అన్ని డేటా తొలగించు",
 
@@ -490,7 +490,7 @@ const T = {
     app_title: "PMAS ಲೈಟ್",
     app_subtitle: "ಔಷಧಿ ಮತ್ತು ಅನುಸರಣೆ ಬೆಂಬಲ",
     welcome_sub: "ಶುಭ ದಿನ",
-    badge_riper: "RIPER M.Pharm",
+    badge_study: "ಸ್ವತಂತ್ರ ಸಂಶೋಧನೆ",
 
     nav_dash: "ಮುಖಪುಟ", nav_meds: "ಔಷಧಿ", nav_sym: "ಲಕ್ಷಣಗಳು", nav_appts: "ಭೇಟಿಗಳು", nav_prof: "ಪ್ರೊಫೈಲ್",
 
@@ -616,8 +616,8 @@ const T = {
 
     consent_title: "⚕️ ಸಂಶೋಧನಾ ಸಮ್ಮತಿ & ಗೌಪ್ಯತೆ",
     consent_study: "ಅಧ್ಯಯನ: ಸಲಹೆ ನಂತರ ಔಷಧಿ ಅನುಸರಣೆ ಬೆಂಬಲ (PMAS)",
-    consent_institution: "ಸಂಸ್ಥೆ: RIPER — ರಾಘವೇಂದ್ರ ಇನ್‌ಸ್ಟಿಟ್ಯೂಟ್ ಆಫ್ ಫಾರ್ಮಾಸ್ಯೂಟಿಕಲ್ ಎಜುಕೇಶನ್ ಅಂಡ್ ರಿಸರ್ಚ್, ಅನಂತಪುರ",
-    consent_dept: "ವಿಭಾಗ: ಫಾರ್ಮಸಿ ಪ್ರಾಕ್ಟಿಸ್ (M.Pharm ಸಂಶೋಧನೆ)",
+    consent_institution: "ಸಂಶೋಧಕ: ಕಾರ್ತಿಕ್ H — ಸ್ವತಂತ್ರ ಟೆಲಿಫಾರ್ಮಸಿ ಸಂಶೋಧನಾ ಯೋಜನೆ",
+    consent_dept: "ಗಮನ: ಔಷಧಿಕಾರರ ನೇತೃತ್ವದ ಆರೈಕೆ ಸಮಾಲೋಚನೆ & ಅಂಟಿಕೊಳ್ಳುವಿಕೆ ಸಂಶೋಧನೆ",
     consent_data_handling: "ಡೇಟಾ ನಿರ್ವಹಣೆ: ಆಫ್‌ಲೈನ್ ಪ್ರೋಟೋಟೈಪ್ — ಡೇಟಾ ಕೇವಲ ಈ ಸಾಧನದಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ. ಸರ್ವರ್‌ಗೆ ಕಳುಹಿಸಲಾಗುವುದಿಲ್ಲ. ಸಂಶೋಧನಾ ರಫ್ತು ಎಲ್ಲಾ ವೈಯಕ್ತಿಕ ಗುರುತುಗಳನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ.",
     consent_intro: "ಇದು ಶೈಕ್ಷಣಿಕ ಮೌಲ್ಯಮಾಪನಕ್ಕಾಗಿ ಸಂಶೋಧನಾ ಪ್ರೋಟೋಟೈಪ್ ಆಗಿದೆ. ಇದು ಪರವಾನಗಿ ಪಡೆದ ವೈದ್ಯಕೀಯ ಸಾಧನವಲ್ಲ ಮತ್ತು ವೈದ್ಯಕೀಯ ಸಲಹೆಗೆ ಬದಲಿಯಲ್ಲ.",
     consent_check1: "ಈ ಅಧ್ಯಯನದ ಉದ್ದೇಶವನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.",
@@ -647,9 +647,9 @@ const T = {
     dismiss_seconds: "ಸೆ",
     safety_logged: "ನಮೂದಾಗಿದೆ. ದಯವಿಟ್ಟು ಎಚ್ಚರಿಕೆಯಿಂದ ಗಮನಿಸಿ.",
 
-    research_export_title: "M.Pharm ಸಂಶೋಧನಾ ಡೇಟಾ ರಫ್ತು",
+    research_export_title: "ಸಂಶೋಧನಾ ಡೇಟಾ ರಫ್ತು",
     research_export_desc1: "ಕೆಳಗಿನ ರಫ್ತಿನಲ್ಲಿ ವೈಯಕ್ತಿಕ ಗುರುತುಗಳಿಲ್ಲ (ಹೆಸರು, ಫೋನ್, ಹುಟ್ಟಿದ ದಿನಾಂಕ ತೆಗೆದುಹಾಕಲಾಗಿದೆ).",
-    research_export_desc2: "ಡೇಟಾ ಸ್ಟಡಿ ID ಮತ್ತು ಸ್ಟಡಿ ಡೇ ಮೂಲಕ ಸೂಚಿಸಲಾಗುತ್ತದೆ. ನಿಮ್ಮ RIPER ಸಂಶೋಧನಾ ಮೇಲ್ವಿಚಾರಕರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬಹುದು.",
+    research_export_desc2: "ಡೇಟಾ ಸ್ಟಡಿ ID ಮತ್ತು ಸ್ಟಡಿ ಡೇ ಮೂಲಕ ಸೂಚಿಸಲಾಗುತ್ತದೆ. ಈ ಡೇಟಾ ಸಂಶೋಧನಾ ತಂಡದೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಬಹುದು.",
     export_research: "ಸಂಶೋಧನಾ ಡೇಟಾ ರಫ್ತು",
     export_ready: "ರಫ್ತು ಸಿದ್ಧವಾಗಿದೆ",
     copy_export: "ರಫ್ತು ಸ್ಟ್ರಿಂಗ್ ನಕಲಿಸಿ",
@@ -673,7 +673,7 @@ const T = {
 
     erase_title: "ಮಾಹಿತಿ ಅಳಿಸುವ ಹಕ್ಕು",
     erase_desc_device: "ಈ ಸಾಧನದಲ್ಲಿ ಸಂಗ್ರಹಿಸಲಾದ ಡೇಟಾ ಅಳಿಸಿ (ಪ್ರೊಫೈಲ್, ಔಷಧಿಗಳು, ನಮೂದುಗಳು, ಅನುಸರಣೆ ದಾಖಲೆಗಳು).",
-    erase_desc_study: "ಗಮನಿಸಿ: ಸ್ಥಳೀಯ ಡೇಟಾ ಅಳಿಸುವುದು ಸಂಶೋಧನಾ ಅಧ್ಯಯನದಿಂದ ಸ್ವಯಂಚಾಲಿತ ಹಿಂದೆ ತೆಗೆದುಕೊಳ್ಳುವಿಕೆ ಅಲ್ಲ. ಅಧ್ಯಯನದಿಂದ ಹಿಂದೆ ತೆಗೆದುಕೊಳ್ಳಲು ಮೇಲ್ವಿಚಾರಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    erase_desc_study: "ಗಮನಿಸಿ: ಸ್ಥಳೀಯ ಡೇಟಾ ಅಳಿಸುವುದು ಸಂಶೋಧನಾ ಅಧ್ಯಯನದಿಂದ ಸ್ವಯಂಚಾಲಿತ ಹಿಂದೆ ತೆಗೆದುಕೊಳ್ಳುವಿಕೆ ಅಲ್ಲ. ಅಧ್ಯಯನದಿಂದ ಹಿಂದೆ ತೆಗೆದುಕೊಳ್ಳಲು ಸಂಶೋಧಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
     erase_confirm: "ಇದು ನಿಮ್ಮ ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುತ್ತದೆ. ಇದನ್ನು ರದ್ದುಮಾಡಲಾಗುವುದಿಲ್ಲ. ಅಳಿಸುವಿಕೆಯನ್ನು ಖಚಿತಪಡಿಸುವುದೇ?",
     erase_btn: "🗑 ನನ್ನ ಎಲ್ಲಾ ಡೇಟಾ ಅಳಿಸಿ",
 
@@ -720,7 +720,7 @@ const T = {
     app_title: "PMAS லைட்",
     app_subtitle: "மருந்து மற்றும் பின்பற்றல் ஆதரவு",
     welcome_sub: "நல்ல நாள்",
-    badge_riper: "RIPER M.Pharm",
+    badge_study: "சுயாதீன ஆராய்ச்சி",
 
     nav_dash: "முகப்பு", nav_meds: "மருந்து", nav_sym: "அறிகுறிகள்", nav_appts: "வருகைகள்", nav_prof: "சுயவிவரம்",
 
@@ -846,8 +846,8 @@ const T = {
 
     consent_title: "⚕️ ஆராய்ச்சி சம்மதம் & தனியுரிமை",
     consent_study: "ஆய்வு: ஆலோசனைக்குப் பிறகு மருந்து பின்பற்றல் ஆதரவு (PMAS)",
-    consent_institution: "நிறுவனம்: RIPER — ராகவேந்திர இன்ஸ்டிடியூட் ஆஃப் பார்மாஸ்யூட்டிகல் எஜுகேஷன் அண்ட் ரிசர்ச், அனந்தபூர்",
-    consent_dept: "துறை: பார்மசி பிராக்டீஸ் (M.Pharm ஆராய்ச்சி)",
+    consent_institution: "ஆராய்ச்சியாளர்: கார்த்திக் H — சுயாதீன டெலிஃபார்மசி ஆராய்ச்சி திட்டம்",
+    consent_dept: "கவனம்: மருந்தாளர் தலைமையிலான ஆலோசனை & இணக்க ஆராய்ச்சி",
     consent_data_handling: "தரவு கையாளுதல்: ஆஃப்லைன் புரோட்டோடைப் — தரவு இந்த சாதனத்தில் மட்டுமே சேமிக்கப்படுகிறது. சர்வருக்கு அனுப்பப்படாது. ஆராய்ச்சி ஏற்றுமதி அனைத்து தனிப்பட்ட அடையாளங்களையும் நீக்குகிறது.",
     consent_intro: "இது கல்வி மதிப்பீட்டிற்கான ஆராய்ச்சி புரோட்டோடைப் ஆகும். இது உரிமம் பெற்ற மருத்துவ சாதனம் அல்ல, மருத்துவ ஆலோசனைக்கு மாற்று அல்ல.",
     consent_check1: "இந்த ஆய்வின் நோக்கத்தை நான் புரிந்துகொள்கிறேன்.",
@@ -877,9 +877,9 @@ const T = {
     dismiss_seconds: "வி",
     safety_logged: "பதிவு செய்யப்பட்டது. கவனமாக கவனிக்கவும்.",
 
-    research_export_title: "M.Pharm ஆராய்ச்சி தரவு ஏற்றுமதி",
+    research_export_title: "ஆராய்ச்சி தரவு ஏற்றுமதி",
     research_export_desc1: "கீழே ஏற்றுமதியில் தனிப்பட்ட அடையாளங்கள் இல்லை (பெயர், தொலைபேசி, பிறந்த தேதி நீக்கப்பட்டது).",
-    research_export_desc2: "தரவு ஸ்டடி ID மற்றும் ஸ்டடி டே மூலம் குறிக்கப்படுகிறது. உங்கள் RIPER ஆராய்ச்சி மேற்பார்வையாளருடன் பகிரலாம்.",
+    research_export_desc2: "தரவு ஸ்டடி ID மற்றும் ஸ்டடி டே மூலம் குறிக்கப்படுகிறது. இந்த தரவு ஆராய்ச்சி குழுவுடன் பகிரலாம்.",
     export_research: "ஆராய்ச்சி தரவு ஏற்றுமதி",
     export_ready: "ஏற்றுமதி தயாராக உள்ளது",
     copy_export: "ஏற்றுமதி ஸ்ட்ரிங் நகலெடு",
@@ -903,7 +903,7 @@ const T = {
 
     erase_title: "தகவல் அழிப்பு உரிமை",
     erase_desc_device: "இந்த சாதனத்தில் சேமிக்கப்பட்ட தரவை அழி (சுயவிவரம், மருந்துகள், பதிவுகள், பின்பற்றல் பதிவுகள்).",
-    erase_desc_study: "குறிப்பு: உள்ளூர் தரவை அழிப்பது ஆராய்ச்சி ஆய்விலிருந்து தானாக விலகுவது அல்ல. ஆய்விலிருந்து விலக மேற்பார்வையாளரை தொடர்பு கொள்ளவும்.",
+    erase_desc_study: "குறிப்பு: உள்ளூர் தரவை அழிப்பது ஆராய்ச்சி ஆய்விலிருந்து தானாக விலகுவது அல்ல. ஆய்விலிருந்து விலக ஆராய்ச்சியாளரை தொடர்பு கொள்ளவும்.",
     erase_confirm: "இது உங்கள் அனைத்து தரவையும் நிரந்தரமாக அழிக்கும். இதை ரத்து செய்ய முடியாது. அழிப்பதை உறுதிப்படுத்தவா?",
     erase_btn: "🗑 என் அனைத்து தரவையும் அழி",
 
@@ -950,7 +950,7 @@ const T = {
     app_title: "PMAS लाइट",
     app_subtitle: "दवा और अनुपालन सहायता",
     welcome_sub: "सुप्रभात",
-    badge_riper: "RIPER M.Pharm",
+    badge_study: "स्वतंत्र शोध",
 
     nav_dash: "होम", nav_meds: "दवाएं", nav_sym: "लक्षण", nav_appts: "दौरे", nav_prof: "प्रोफ़ाइल",
 
@@ -1076,8 +1076,8 @@ const T = {
 
     consent_title: "⚕️ अनुसंधान सहमति और गोपनीयता",
     consent_study: "अध्ययन: परामर्श के बाद दवा अनुपालन सहायता (PMAS)",
-    consent_institution: "संस्थान: RIPER — राघवेंद्र इंस्टीट्यूट ऑफ फार्मास्युटिकल एजुकेशन एंड रिसर्च, अनंतपुर",
-    consent_dept: "विभाग: फार्मेसी प्रैक्टिस (M.Pharm शोध)",
+    consent_institution: "शोधकर्ता: कार्तिक H — स्वतंत्र टेलीफार्मेसी शोध परियोजना",
+    consent_dept: "फोकस: फार्मासिस्ट-नेतृत्व परामर्श एवं अनुपालन शोध",
     consent_data_handling: "डेटा प्रबंधन: ऑफलाइन प्रोटोटाइप — डेटा केवल इस डिवाइस पर संग्रहीत होता है। सर्वर पर नहीं भेजा जाता। अनुसंधान निर्यात सभी व्यक्तिगत पहचान को हटा देता है।",
     consent_intro: "यह शैक्षणिक मूल्यांकन के लिए एक अनुसंधान प्रोटोटाइप है। यह लाइसेंस प्राप्त चिकित्सा उपकरण नहीं है और चिकित्सा सलाह का विकल्प नहीं है।",
     consent_check1: "मैं इस अध्ययन के उद्देश्य को समझता/समझती हूं।",
@@ -1107,9 +1107,9 @@ const T = {
     dismiss_seconds: "से",
     safety_logged: "प्रविष्टि दर्ज। कृपया ध्यान से देखें।",
 
-    research_export_title: "M.Pharm शोध डेटा निर्यात",
+    research_export_title: "शोध डेटा निर्यात",
     research_export_desc1: "नीचे निर्यात में कोई व्यक्तिगत पहचान नहीं है (नाम, फोन, जन्म तिथि हटाई गई)।",
-    research_export_desc2: "डेटा स्टडी ID और स्टडी डे द्वारा संदर्भित है। अपने RIPER शोध पर्यवेक्षक के साथ साझा किया जा सकता है।",
+    research_export_desc2: "डेटा स्टडी ID और स्टडी डे द्वारा संदर्भित है। यह डेटा शोध टीम के साथ साझा किया जा सकता है।",
     export_research: "शोध डेटा निर्यात करें",
     export_ready: "निर्यात तैयार है",
     copy_export: "निर्यात स्ट्रिंग कॉपी करें",
@@ -1133,7 +1133,7 @@ const T = {
 
     erase_title: "सूचना मिटाने का अधिकार",
     erase_desc_device: "इस डिवाइस पर संग्रहीत डेटा मिटाएं (प्रोफ़ाइल, दवाएं, प्रविष्टियां, अनुपालन रिकॉर्ड)।",
-    erase_desc_study: "नोट: स्थानीय डेटा मिटाना शोध अध्ययन से स्वतः वापसी नहीं है। अध्ययन से वापस लेने के लिए पर्यवेक्षक से संपर्क करें।",
+    erase_desc_study: "नोट: स्थानीय डेटा मिटाना शोध अध्ययन से स्वतः वापसी नहीं है। अध्ययन से वापस लेने के लिए शोधकर्ता से संपर्क करें।",
     erase_confirm: "यह आपका सभी डेटा स्थायी रूप से मिटा देगा। इसे पूर्ववत नहीं किया जा सकता। मिटाने की पुष्टि करें?",
     erase_btn: "🗑 मेरा सभी डेटा हटाएं",
 

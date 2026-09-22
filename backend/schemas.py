@@ -42,7 +42,7 @@ class PatientProfileCreate(BaseModel):
     known_allergies: Optional[str]
     chronic_conditions: Optional[str]
     consent_timestamp: datetime
-    consent_version: str = "1.0-RIPER"
+    consent_version: str = "1.0"
     consent_checks: Optional[dict]
 
 

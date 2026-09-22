@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!-- Removed user-scalable=no — patients (especially older adults) may need browser zoom -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="PMAS — Pharmacist-led Medication & Adherence Support (RIPER M.Pharm Research Prototype)">
+<meta name="description" content="PMAS — Pharmacist-led Medication & Adherence Support (Independent Research Prototype)">
 <title>PMAS — Medication & Adherence Support</title>
 <link rel="stylesheet" href="css/styles.css">
 
@@ -78,7 +78,7 @@
     <p style="font-size:0.65rem;color:var(--muted);margin-top:2px;" data-i18n="app_subtitle">Medication & Adherence Support</p>
   </div>
   <div class="header-right">
-    <span class="badge-riper" data-i18n="badge_riper">RIPER M.Pharm</span>
+    <span class="badge-study" data-i18n="badge_study">Independent Research</span>
     <select id="lang-selector" onchange="changeLang(this.value)" aria-label="Select Language">
       <option value="en">EN</option>
       <option value="te">TE</option>
@@ -98,8 +98,8 @@
 
     <div class="consent-meta">
       <p><strong data-i18n="consent_study">Study: Post-Counseling Medication Adherence Support (PMAS)</strong></p>
-      <p data-i18n="consent_institution">Institution: RIPER — Raghavendra Institute of Pharmaceutical Education and Research, Anantapur</p>
-      <p data-i18n="consent_dept">Department: Pharmacy Practice (M.Pharm Dissertation Research)</p>
+      <p data-i18n="consent_institution">Researcher: Kartik H — independent telepharmacy research project</p>
+      <p data-i18n="consent_dept">Focus: Pharmacist-led counselling & adherence research</p>
       <p data-i18n="consent_data_handling">Data Handling: Offline-first prototype with local-only data storage and no automatic server transmission. Research export removes all personal identifiers.</p>
     </div>
 
@@ -507,9 +507,9 @@
 
       <!-- ── Research Data Export (Study ID + study day) ─ -->
       <div class="research-disclaimer">
-        <strong style="color:var(--indigo);" data-i18n="research_export_title">M.Pharm Research Data Export</strong><br>
+        <strong style="color:var(--indigo);" data-i18n="research_export_title">Research Data Export</strong><br>
         <span data-i18n="research_export_desc1">The export below contains no personal identifiers (name, phone, DOB, emergency contact, doctor names, or free-text notes removed).</span><br><br>
-        <span data-i18n="research_export_desc2">Data is referenced by Study ID and Study Day rather than raw dates to minimise re-identification risk. This de-identified data may be shared with your RIPER research supervisor for dissertation analysis.</span>
+        <span data-i18n="research_export_desc2">Data is referenced by Study ID and Study Day rather than raw dates to minimise re-identification risk. This de-identified data may be shared with the research team for study analysis.</span>
       </div>
 
       <button class="btn btn-secondary mt-1" onclick="exportResearchData()" id="btn-export" data-i18n="export_research">
@@ -527,7 +527,7 @@
         Delete data stored on this device (profile, medications, symptom logs, appointments, adherence records, and consent).
       </p>
       <p class="text-muted" style="font-size:0.72rem;margin-bottom:0.75rem;" data-i18n="erase_desc_study">
-        Note: Deleting local data does not automatically withdraw you from the research study or erase data already exported and stored by the research team. To formally withdraw from the study, please contact your research supervisor.
+        Note: Deleting local data does not automatically withdraw you from the research study or erase data already exported and stored by the research team. To formally withdraw from the study, please contact the researcher.
       </p>
       <button class="btn btn-ghost" onclick="deleteAllData()" id="btn-erase" data-i18n="erase_btn">
         🗑 Delete All My Data (Right to Erasure)

@@ -41,7 +41,7 @@ header {
 }
 header h1 { font-size: 1.1rem; font-weight: 700; color: var(--teal); letter-spacing: -0.01em; }
 header .header-right { display: flex; align-items: center; gap: 0.6rem; }
-.badge-riper {
+.badge-study {
   font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
   background: var(--indigo); color: #fff;
   padding: 2px 7px; border-radius: 20px; text-transform: uppercase;
