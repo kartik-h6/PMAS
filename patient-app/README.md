@@ -2,7 +2,7 @@
 
 **Pharmacist-led, Multilingual, Offline-first Medication & Adherence Support**
 
-A research prototype developed by Kartik H. as part of M.Pharm Pharmacy Practice dissertation work at RIPER — Raghavendra Institute of Pharmaceutical Education and Research, Anantapur, Andhra Pradesh, India.
+An independent research prototype developed by Kartik H., pharmacist.
 
 ## Project Structure
 
@@ -78,9 +78,9 @@ pmas-platform/
 
 ## Research Context
 
-- **Institution:** RIPER, Anantapur (M.Pharm Pharmacy Practice)
+- **Affiliation:** Independent — no institutional affiliation
 - **Conference:** 5th International HEOR Conference, ISPOR India Andhra Pradesh Chapter
-- **ICMR Discussion:** Vernacular communication direction shaped with Dr. Muniyandi Malaisamy (Scientist E, ICMR-NIRT)
+- **Direction:** Vernacular communication focus shaped at the ISPOR India HEOR conference
 - **Primary Outcome:** Medication adherence rate (app-tracked + MMAS-8 validated)
 - **Design Alignment:** DPDP Act 2023 principles (not a compliance certification)
 
@@ -93,7 +93,7 @@ pmas-platform/
 
 ## Author
 
-**Kartik H.** — B.Pharm (RGUHS), M.Pharm Pharmacy Practice (incoming, RIPER)
+**Kartik H.** — B.Pharm (RGUHS), independent digital health researcher
 Founder, TechStudyHubCore
 
 ## License
