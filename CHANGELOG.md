@@ -4,7 +4,12 @@ All notable changes to PMAS are documented here. The project uses a single produ
 
 ## [Unreleased]
 
+### Changed
+- Project reframed as an **independent telepharmacy research project by Kartik H.** — institutional affiliations, dissertation framing and third-party references removed across docs, marketing pages, consent screens and app strings (all 5 languages).
+- Product model formalised in the PRD: the 90-day telepharmacy care loop for rural and remote chronic-care patients.
+
 ### Added
+- Product Requirements Document: `docs/00-product-requirements.md` (problem statement, personas, scope, functional & non-functional requirements, success metrics, risks).
 - This repository: consolidated project structure (`patient-app/`, `backend/`, `pharmacist-portal/`, `docs/`).
 - Complete documentation set: vision, architecture, data model, security/DPDP mapping, HEOR research design, multilingual content model, AI integration strategy, roadmap, deployment, funding & business, AI-usage disclosure.
 - API sync layer (`demo/js/api.js`) added to the patient app source (wiring into the app shell is next — see roadmap).
@@ -35,7 +40,7 @@ All notable changes to PMAS are documented here. The project uses a single produ
 - Removed `user-scalable=no` (accessibility fix).
 
 ### v1.0 — original prototype
-- Single-file offline-first demo (`PMAS_Lite_RIPER_MPharm.html`): consent, profile, medications, dose logging, symptom logging, multilingual UI.
+- Single-file offline-first demo (early prototype): consent, profile, medications, dose logging, symptom logging, multilingual UI.
 - One-page research concept note (study design, outcomes, population, ethics pathway).
 
 ### Branding

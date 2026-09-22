@@ -54,7 +54,7 @@ One JSON object per medication per language. The file lives in the patient app (
 | Expansion (v2) | Top 100 + common OTC interactions | Site + essential medicines list |
 | Scale (future) | Formulary-driven | Partner-site formularies |
 
-Five languages per medication: English, Telugu, Kannada, Tamil, Hindi. (Telugu first — Anantapur district's primary language — then the others.)
+Five languages per medication: English, Telugu, Kannada, Tamil, Hindi. (Telugu first — the study region's primary language — then the others.)
 
 ## Validation
 

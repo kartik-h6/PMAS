@@ -1,6 +1,6 @@
 # 08 — Roadmap
 
-Honest status tracking. Dates are relative to the M.Pharm academic calendar (sessions begin at RIPER Anantapur; hackathon target: NLTH 2026, September 5).
+Honest status tracking. Dates are relative to project phases — this is an independent project with no fixed academic calendar.
 
 ## Current status — what exists today
 
@@ -19,7 +19,7 @@ Honest status tracking. Dates are relative to the M.Pharm academic calendar (ses
 
 ## Phase 1 — Demo-ready (target: immediately)
 
-*Goal: everything works on a phone for demonstration (hackathon, HOD, department).*
+*Goal: everything works on a phone for demonstration (reviewers, demo days, potential collaborators).*
 
 - [ ] Deploy patient app to Netlify (free tier).
 - [ ] Deploy backend to Render + database to Supabase (free tiers).
@@ -53,9 +53,9 @@ Honest status tracking. Dates are relative to the M.Pharm academic calendar (ses
 
 ## Phase 4 — Thesis & scale decision (months 6–12)
 
-*Goal: defend the dissertation; decide on incubation.*
+*Goal: write up results; decide on incubation.*
 
-- [ ] Thesis writing and defence.
+- [ ] Study write-up and publication.
 - [ ] Publication #1 submitted (platform design paper).
 - [ ] Publication #2 prepared (adherence results).
 - [ ] Incubation go/no-go: team, funding, hospital partnerships.

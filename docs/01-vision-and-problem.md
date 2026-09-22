@@ -4,7 +4,7 @@
 
 Every chronic-disease patient in India should be able to open their phone, understand **what their medicines are for, how to take them, and what happens if they don't** — in their own language, at their own literacy level — with a pharmacist watching over their adherence and stepping in when something goes wrong.
 
-PMAS (Pharmacist-led Medication & Adherence Support) is the platform built around that vision. It is designed, first and foremost, as a **research instrument** for an M.Pharm (Pharmacy Practice) dissertation, and secondarily as an incubation-ready product.
+PMAS (Pharmacist-led Medication & Adherence Support) is the platform built around that vision. It is designed, first and foremost, as a **research instrument and telepharmacy service platform**, and secondarily as an incubation-ready product.
 
 ## The problem, precisely
 
@@ -47,7 +47,7 @@ When pharmacoeconomic researchers in India want adherence data, they re-collect 
 |---|---|
 | **Patient** (primary) | Receives counselling, medication reminders, dose tracking, symptom logging, adherence reports |
 | **Pharmacist** (the "P" in PMAS) | Enrols patients, assigns medication plans, monitors adherence and symptoms, intervenes on red flags |
-| **Researcher** (the dissertation) | Receives de-identified, Study-ID-keyed exports of adherence + clinical outcomes |
+| **Researcher** (future study) | Receives de-identified, Study-ID-keyed exports of adherence + clinical outcomes |
 | **Administrator** (future) | User management, knowledge-base governance, audit review |
 
 ## Competitive landscape (summary)
@@ -66,7 +66,7 @@ A full market and funding analysis is in [doc 10](10-funding-and-business.md).
 
 ## Success criteria
 
-For the dissertation:
+For the research programme:
 
 1. Working platform deployed with real patients (pilot, target n = 30–50).
 2. Measurable pre/post change in adherence (validated scale — see [doc 05](05-heor-research.md)).

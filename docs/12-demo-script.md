@@ -1,6 +1,6 @@
 # PMAS — 5-Minute Demo Script
 
-A one-page walkthrough of the PMAS patient app for the HOD, judges, or any
+A one-page walkthrough of the PMAS patient app for judges, reviewers, or any
 teammate. Anyone should be able to present this after one practice run.
 
 **Setup (before the audience arrives)**
@@ -55,7 +55,7 @@ teammate. Anyone should be able to present this after one practice run.
 
 > "Dual-vault architecture: identifying data and research data are separated
 > at the database level. The export a researcher downloads cannot contain a
-> name, because it never had one to leak. That's the M.Pharm contribution —
+> name, because it never had one to leak. That's PMAS's contribution —
 > a compliance-first adherence platform built for Indian pharmacy practice."
 
 ---
@@ -69,5 +69,5 @@ teammate. Anyone should be able to present this after one practice run.
   drafts come later, with human review (see `docs/07`).
 - **"What about data privacy law?"** — DPDP Act 2023 mapped in `docs/04`:
   consent, purpose limitation, withdrawal, erasure, audit trail.
-- **"Why five languages?"** — RIPER serves Telugu-first patients; the four
+- **"Why five languages?"** — the study region is Telugu-first; the four
   others cover the region's mobility (see `docs/01`).

@@ -4,7 +4,7 @@ PMAS is an AI-assisted project, consistent with modern development practice and 
 
 ## Summary
 
-The project's **conception, clinical reasoning, and all decisions of substance** are the author's (Kartik H., B.Pharm; M.Pharm Pharmacy Practice). AI assistants (LLM-based coding and writing assistants, including Sarvam AI tooling) were used to accelerate implementation and documentation, always under the author's direction and review.
+The project's **conception, clinical reasoning, and all decisions of substance** are the author's (Kartik H., B.Pharm). AI assistants (LLM-based coding and writing assistants, including Sarvam AI tooling) were used to accelerate implementation and documentation, always under the author's direction and review.
 
 ## What AI helped with
 
@@ -21,10 +21,10 @@ The project's **conception, clinical reasoning, and all decisions of substance**
 - Choose the research question or study design (pharmacist-led vernacular adherence support is the author's thesis argument).
 - Author or approve any clinical content (dose guidance, safety rules, counselling text) — these are and will be pharmacist-authored and reviewed.
 - Interact with patients or make clinical decisions.
-- Replace the supervisor's guidance or the ethics committee's authority.
+- Replace qualified clinical judgement or the ethics committee's authority.
 
 ## Ongoing commitment
 
 1. Any clinically-material content in the platform carries a named pharmacist reviewer (content database `reviewed_by` field).
-2. AI use in the study itself (if any, e.g., transcript analysis) will be disclosed in the thesis methods section and to the ethics committee.
-3. This disclosure will be updated as the project evolves — including during hackathons, where AI-usage crediting is required by the rules under which PMAS competes.
+2. AI use in the study itself (if any, e.g., transcript analysis) will be disclosed in the study methods section and to the ethics committee.
+3. This disclosure will be updated as the project evolves — including wherever AI-usage crediting is required.

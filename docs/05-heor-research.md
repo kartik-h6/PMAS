@@ -10,14 +10,14 @@ Pharmacoeconomic research in India is constrained by data availability: every st
 - The Indian Reference Case for economic evaluation (published 2023) now gives researchers a standard methodological baseline; what is missing is longitudinal, consented, real-world adherence data of the kind PMAS collects.
 - Comparable trials (e.g., community-based adherence interventions for diabetes/hypertension in rural India) run full cost-effectiveness analyses alongside adherence outcomes — PMAS is architected to support exactly that study shape.
 
-## Study design (dissertation core)
+## Study design (planned pilot)
 
 **Title (working):** *Impact of a Pharmacist-led, Vernacular, Digital Adherence Support Platform (PMAS) on Medication Adherence and Outcomes in Chronic Disease Patients.*
 
 | Element | Specification |
 |---|---|
 | Design | Single-arm, pre-post interventional study (Phase A); matched-control comparison (Phase B, if site participation allows) |
-| Setting | RIPER-affiliated community pharmacy / outpatient counselling clinic, Anantapur, Andhra Pradesh |
+| Setting | Community pharmacy / outpatient counselling clinic (site to be finalised — Andhra Pradesh region) |
 | Population | Adults ≥18 with ≥1 chronic condition on long-term oral therapy; able to use a smartphone (self or caregiver-assisted) |
 | Sample size | Pilot: n = 30–50 (feasibility); powering for the confirmatory study is computed from pilot variance |
 | Duration | 12 weeks per participant (baseline → intervention → follow-up) |
@@ -90,6 +90,6 @@ The exact thresholds are reviewed and signed off by the supervising pharmacist/p
 
 ## Data governance during the study
 
-- The investigator (author) and supervisor have access to Vault A only for care delivery and consent administration.
+- The investigator (author) and study team have access to Vault A only for care delivery and consent administration.
 - All analysis uses exports from Vault B via the research endpoint; every export is audit-logged.
 - De-identified analysis data are retained per the study protocol's retention clause; identifiable data are erased after the statutory period or consent withdrawal.

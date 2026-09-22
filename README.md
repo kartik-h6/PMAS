@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <em>M.Pharm (Pharmacy Practice) dissertation project · RIPER — Raghavendra Institute of Pharmaceutical Education and Research, Anantapur, Andhra Pradesh, India</em>
+  <em>Independent project by Kartik H., pharmacist — telepharmacy for rural & remote chronic care. No institutional affiliation.</em>
 </p>
 
 ---
@@ -64,6 +64,7 @@ Every aspect of the project is documented in [`docs/`](docs/):
 
 | Document | Covers |
 |---|---|
+| [00 — Product Requirements](docs/00-product-requirements.md) | PRD v1.0 — problem statement, users, product model, scope, requirements, metrics, risks |
 | [01 — Vision & Problem](docs/01-vision-and-problem.md) | Origin story, adherence problem, thesis argument, target users, competitive landscape |
 | [02 — Architecture](docs/02-architecture.md) | System design, dual-vault, offline-first model, API layer, integration principles |
 | [03 — Data Model](docs/03-data-model.md) | Database schema, data dictionary, de-identification strategy, health data contract |
@@ -102,14 +103,14 @@ See [docs/09-deployment.md](docs/09-deployment.md) for the full cloud deployment
 - All patient-facing informational content is for education and counselling support, and must be reviewed by a registered pharmacist before use with real patients.
 - The study described in [docs/05](docs/05-heor-research.md) requires Institutional Ethics Committee approval before any human-participant data collection.
 
-## Author & supervision
+## Author
 
-**Kartik H.** — B.Pharm; M.Pharm (Pharmacy Practice), RIPER Anantapur
-Research guidance: Dr. Muniyandi Malaisamy (ICMR-NIRT)
+**Kartik H.** — B.Pharm, pharmacist and independent researcher. All platform
+conception, clinical reasoning, and validation decisions are the author's.
 
 ## AI usage disclosure
 
-Parts of this codebase and documentation were developed with AI assistance (prompted, reviewed and validated by the author). Details: [docs/11-ai-usage-disclosure.md](docs/11-ai-usage-disclosure.md). This disclosure is maintained in line with hackathon rules requiring AI-usage crediting.
+Parts of this codebase and documentation were developed with AI assistance (prompted, reviewed and validated by the author). Details: [docs/11-ai-usage-disclosure.md](docs/11-ai-usage-disclosure.md). This disclosure is maintained as a matter of research transparency.
 
 ## License
 
