@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" width="140" alt="PMAS logo — hexagon cube">
+  <img src="assets/logo.svg" width="140" alt="PMAS logo — hexagon cube">
 </p>
 
 <h1 align="center">PMAS</h1>
