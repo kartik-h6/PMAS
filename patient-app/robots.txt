@@ -1,0 +1,35 @@
+# PMAS Platform — robots.txt
+# AI-era crawler directives
+
+# Allow all crawlers including AI/LLM bots
+User-agent: *
+Allow: /
+Disallow: /files/
+
+# Explicitly allow AI crawlers (the modern standard)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemap location
+Sitemap: /sitemap.xml
+
+# llms.txt for AI discovery
+# https://llmstxt.org

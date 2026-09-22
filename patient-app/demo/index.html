@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Removed user-scalable=no — patients (especially older adults) may need browser zoom -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PMAS — Pharmacist-led Medication & Adherence Support (RIPER M.Pharm Research Prototype)">
+<title>PMAS — Medication & Adherence Support</title>
+<link rel="stylesheet" href="css/styles.css">
+
+    <!-- ═══ PWA LAYER (Installable App) ═════════════════════════ -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0B1120">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PMAS">
+    <link rel="apple-touch-icon" href="../assets/images/favicon/favicon.png">
+    <style>
+      #pwa-install-banner {
+        position: fixed; bottom: 5.5rem; left: 1rem; right: 1rem;
+        background: var(--surface2); border: 1px solid var(--teal);
+        border-radius: var(--radius); padding: 0.75rem 1rem;
+        display: none; align-items: center; gap: 0.75rem;
+        z-index: 150; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        animation: fadeUp 0.3s ease;
+      }
+      #pwa-install-banner.show { display: flex; }
+      #pwa-install-banner .install-text { flex: 1; font-size: 0.82rem; }
+      #pwa-install-banner .install-text strong { color: var(--teal); }
+      #pwa-install-btn {
+        background: var(--teal); color: var(--bg);
+        border: none; border-radius: 6px;
+        padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700;
+        cursor: pointer; white-space: nowrap;
+      }
+      #pwa-install-close {
+        background: none; border: none; color: var(--muted);
+        font-size: 1.2rem; cursor: pointer; padding: 0 4px;
+      }
+    </style>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('PMAS SW registered:', reg.scope))
+            .catch(err => console.warn('PMAS SW registration failed:', err));
+        });
+      }
+      let deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.classList.add('show');
+      });
+      function installPWA() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          document.getElementById('pwa-install-banner').classList.remove('show');
+        });
+      }
+      function closeInstallBanner() {
+        document.getElementById('pwa-install-banner').classList.remove('show');
+      }
+      window.addEventListener('appinstalled', () => {
+        console.log('PMAS installed as PWA');
+      });
+    </script>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div>
+    <img src="../assets/images/favicon/favicon.png" alt="PMAS" style="width:24px;height:24px;border-radius:4px;vertical-align:middle;margin-right:6px;"><h1 id="app-title" data-i18n="app_title" style="display:inline;">PMAS</h1>
+    <p style="font-size:0.65rem;color:var(--muted);margin-top:2px;" data-i18n="app_subtitle">Medication & Adherence Support</p>
+  </div>
+  <div class="header-right">
+    <span class="badge-riper" data-i18n="badge_riper">RIPER M.Pharm</span>
+    <select id="lang-selector" onchange="changeLang(this.value)" aria-label="Select Language">
+      <option value="en">EN</option>
+      <option value="te">TE</option>
+      <option value="kn">KN</option>
+      <option value="ta">TA</option>
+      <option value="hi">HI</option>
+    </select>
+  </div>
+</header>
+
+<!-- ═══ MAIN ════════════════════════════════════════════════════ -->
+<main id="main-wrap">
+
+  <!-- ── CONSENT SCREEN (Granular consent) ─────────────── -->
+  <div id="consent-screen">
+    <h2 data-i18n="consent_title">⚕️ Research Consent & Privacy</h2>
+
+    <div class="consent-meta">
+      <p><strong data-i18n="consent_study">Study: Post-Counseling Medication Adherence Support (PMAS)</strong></p>
+      <p data-i18n="consent_institution">Institution: RIPER — Raghavendra Institute of Pharmaceutical Education and Research, Anantapur</p>
+      <p data-i18n="consent_dept">Department: Pharmacy Practice (M.Pharm Dissertation Research)</p>
+      <p data-i18n="consent_data_handling">Data Handling: Offline-first prototype with local-only data storage and no automatic server transmission. Research export removes all personal identifiers.</p>
+    </div>
+
+    <p data-i18n="consent_intro">This tool is a research prototype for academic evaluation. It is not a licensed medical device and does not replace clinical advice.</p>
+
+    <!-- Granular consent: 6 separate acknowledgements -->
+    <div class="consent-checks">
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check1">
+        <label for="consent-check1" data-i18n="consent_check1">I understand the purpose of this study.</label>
+      </div>
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check2">
+        <label for="consent-check2" data-i18n="consent_check2">I understand what information will be collected.</label>
+      </div>
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check3">
+        <label for="consent-check3" data-i18n="consent_check3">I understand that participation is voluntary.</label>
+      </div>
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check4">
+        <label for="consent-check4" data-i18n="consent_check4">I understand that I can withdraw at any time.</label>
+      </div>
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check5">
+        <label for="consent-check5" data-i18n="consent_check5">I understand how my research data will be used.</label>
+      </div>
+      <div class="consent-check-item">
+        <input type="checkbox" id="consent-check6">
+        <label for="consent-check6" data-i18n="consent_check6">I understand this tool does not replace professional healthcare.</label>
+      </div>
+    </div>
+
+    <div class="form-group mt-1">
+      <label class="field-label" for="consent-lang" data-i18n="consent_lang_label">Select your preferred language before consenting:</label>
+      <select id="consent-lang" class="field-select" onchange="document.getElementById('lang-selector').value=this.value; changeLang(this.value)">
+        <option value="en">English</option>
+        <option value="te">Telugu — తెలుగు</option>
+        <option value="kn">Kannada — ಕನ್ನಡ</option>
+        <option value="ta">Tamil — தமிழ்</option>
+        <option value="hi">Hindi — हिंदी</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary mt-1" onclick="acceptConsent()" data-i18n="consent_continue">Continue</button>
+
+    <p style="font-size:0.72rem;color:var(--muted);margin-top:0.75rem;" data-i18n="consent_footer">
+      Designed in alignment with DPDP Act 2023 (India) principles. Research prototype — not for clinical deployment.
+    </p>
+  </div>
+
+  <!-- ── APP CORE (hidden until consent) ─────────────────────── -->
+  <div id="app-core" class="hidden">
+
+    <!-- ╔══ TAB: DASHBOARD ══════════════════════════════════════ -->
+    <section id="tab-dashboard" class="tab active">
+      <p class="section-subtitle" data-i18n="welcome_sub">Good day</p>
+      <h2 class="section-title"><span id="dash-name" class="text-teal">Patient</span></h2>
+
+      <!-- Stat cards (added adherence stat) -->
+      <div class="stat-grid">
+        <div class="stat-card stat-indigo">
+          <span class="stat-num" id="stat-meds">0</span>
+          <span class="stat-lbl" data-i18n="active_meds">Active Meds</span>
+        </div>
+        <div class="stat-card stat-amber">
+          <span class="stat-num" id="stat-adherence">0%</span>
+          <span class="stat-lbl" data-i18n="adherence_today">Today's Adherence</span>
+        </div>
+      </div>
+
+      <!-- Adherence bars (NEW) -->
+      <div id="dash-adherence-wrap"></div>
+      <div id="dash-weekly-wrap"></div>
+
+      <!-- Next medication due (FIXED logic) -->
+      <div class="dash-next card-teal">
+        <div class="label" data-i18n="next_med">Next Medication Due</div>
+        <div class="value" id="dash-next-med">—</div>
+      </div>
+
+      <!-- Latest symptom -->
+      <div class="dash-next">
+        <div class="label" data-i18n="last_sym">Latest Symptom Entry</div>
+        <div class="value" id="dash-last-sym">—</div>
+      </div>
+
+      <!-- Next appointment (FIXED sorting) -->
+      <div class="dash-next card-indigo">
+        <div class="label" data-i18n="next_appt">Next Appointment</div>
+        <div class="value" id="dash-next-appt">—</div>
+      </div>
+
+      <!-- Emergency contact card -->
+      <div class="card card-red">
+        <p class="section-subtitle text-red" data-i18n="emerg">Emergency Contact</p>
+        <p id="dash-emerg-name" style="font-weight:600;margin-bottom:4px;">Not set — please update Profile</p>
+        <p id="dash-emerg-rel" class="text-muted"></p>
+        <a href="tel:" id="dash-emerg-phone" style="font-size:1.3rem;font-weight:800;color:#fff;text-decoration:none;display:block;margin-top:6px;">—</a>
+      </div>
+    </section>
+
+    <!-- ╔══ TAB: MEDICATIONS (with adherence tracking) ═════════ -->
+    <section id="tab-medications" class="tab">
+      <div class="row-between" style="margin-bottom:1.2rem;">
+        <h2 class="section-title" style="margin-bottom:0;" data-i18n="medications">Medications</h2>
+        <button class="btn btn-secondary btn-sm" onclick="toggleMedForm()" data-i18n="add_med">+ Add</button>
+      </div>
+
+      <!-- Add Medication Form -->
+      <div id="med-form-wrap" class="card hidden">
+        <form id="med-form" onsubmit="saveMedication(event)" novalidate>
+          <div class="form-group">
+            <label class="field-label" for="med-name" data-i18n="med_name">Medicine Name</label>
+            <input type="text" id="med-name" required maxlength="100" placeholder="e.g. Metformin" data-i18n-ph="med_name_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="med-dose" data-i18n="med_dose">Dose</label>
+            <input type="text" id="med-dose" required maxlength="50" placeholder="e.g. 500mg" data-i18n-ph="med_dose_ph">
+          </div>
+
+          <fieldset>
+            <legend data-i18n="med_schedule">Schedule & Reminder Times</legend>
+            <div class="check-row">
+              <input type="checkbox" id="med-morn" onchange="toggleTime('med-morn-time',this.checked)">
+              <label for="med-morn" data-i18n="med_morning">Morning</label>
+              <input type="time" id="med-morn-time" disabled aria-label="Morning time">
+            </div>
+            <div class="check-row">
+              <input type="checkbox" id="med-aft" onchange="toggleTime('med-aft-time',this.checked)">
+              <label for="med-aft" data-i18n="med_afternoon">Afternoon</label>
+              <input type="time" id="med-aft-time" disabled aria-label="Afternoon time">
+            </div>
+            <div class="check-row">
+              <input type="checkbox" id="med-ngt" onchange="toggleTime('med-ngt-time',this.checked)">
+              <label for="med-ngt" data-i18n="med_night">Night</label>
+              <input type="time" id="med-ngt-time" disabled aria-label="Night time">
+            </div>
+          </fieldset>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label class="field-label" for="med-start" data-i18n="med_start_date">Start Date</label>
+              <input type="date" id="med-start" required>
+            </div>
+            <div class="form-group">
+              <label class="field-label" for="med-end" data-i18n="med_end_date">End Date</label>
+              <input type="date" id="med-end" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="med-notes" data-i18n="med_notes">Notes</label>
+            <textarea class="field-textarea" id="med-notes" maxlength="300" placeholder="Instructions, food timing, etc." data-i18n-ph="med_notes_ph" style="min-height:56px;"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" data-i18n="save_med">Save Medication</button>
+          <button type="button" class="btn btn-ghost mt-1" onclick="toggleMedForm()" data-i18n="cancel">Cancel</button>
+        </form>
+      </div>
+
+      <div id="med-list"></div>
+    </section>
+
+    <!-- ╔══ TAB: SYMPTOMS ═══════════════════════════════════════ -->
+    <section id="tab-symptoms" class="tab">
+      <h2 class="section-title" data-i18n="symptom_tracker">Symptom Tracker</h2>
+
+      <form id="sym-form" onsubmit="saveSymptom(event)" novalidate class="card">
+        <div class="form-group">
+          <label class="field-label" for="sym-date" data-i18n="sym_date">Date</label>
+          <input type="date" id="sym-date" required>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="sym-pain" data-i18n="pain_level">Pain Level (0–10)</label>
+          <input type="range" id="sym-pain" min="0" max="10" value="0"
+                 oninput="document.getElementById('pain-val').textContent=this.value"
+                 aria-label="Pain level 0 to 10">
+          <div class="range-val" id="pain-val">0</div>
+        </div>
+
+        <div class="field-row">
+          <div class="form-group">
+            <label class="field-label" for="sym-temp" data-i18n="temperature">Temperature (°C)</label>
+            <input type="number" id="sym-temp" min="35" max="42" step="0.1" placeholder="e.g. 37.2" data-i18n-ph="temperature_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="sym-weight" data-i18n="weight">Weight (kg)</label>
+            <input type="number" id="sym-weight" min="1" max="300" step="0.1" placeholder="e.g. 65.0" data-i18n-ph="weight_ph">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="form-group">
+            <label class="field-label" for="sym-bp-sys" data-i18n="bp_sys">BP Systolic</label>
+            <input type="number" id="sym-bp-sys" min="60" max="250" placeholder="e.g. 120" data-i18n-ph="bp_sys_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="sym-bp-dia" data-i18n="bp_dia">BP Diastolic</label>
+            <input type="number" id="sym-bp-dia" min="40" max="150" placeholder="e.g. 80" data-i18n-ph="bp_dia_ph">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="sym-symptoms" data-i18n="symptoms_observed">Symptoms Observed</label>
+          <textarea class="field-textarea" id="sym-symptoms" maxlength="500"
+                    placeholder="Describe any symptoms (headache, nausea, dizziness…)" data-i18n-ph="symptoms_ph"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="sym-side" data-i18n="side_effects">Side Effects Noticed</label>
+          <textarea class="field-textarea" id="sym-side" maxlength="500"
+                    placeholder="Any side effects from medications…" data-i18n-ph="side_effects_ph"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="sym-notes" data-i18n="additional_notes">Additional Notes</label>
+          <textarea class="field-textarea" id="sym-notes" maxlength="300"
+                    placeholder="Diet, activity, missed doses…" data-i18n-ph="additional_notes_ph"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" data-i18n="save_sym">Log Symptom Entry</button>
+      </form>
+
+      <hr class="divider">
+      <p class="section-subtitle" data-i18n="last_sym">Recent Entries</p>
+      <div id="sym-list"></div>
+    </section>
+
+    <!-- ╔══ TAB: APPOINTMENTS ═══════════════════════════════════ -->
+    <section id="tab-appts" class="tab">
+      <div class="row-between" style="margin-bottom:1.2rem;">
+        <h2 class="section-title" style="margin-bottom:0;" data-i18n="appointments">Appointments</h2>
+        <button class="btn btn-secondary btn-sm" onclick="toggleApptForm()" data-i18n="add_appt">+ Add</button>
+      </div>
+
+      <div id="appt-form-wrap" class="card hidden">
+        <form id="appt-form" onsubmit="saveAppt(event)" novalidate>
+          <div class="field-row">
+            <div class="form-group">
+              <label class="field-label" for="appt-date" data-i18n="appt_date">Date</label>
+              <input type="date" id="appt-date" required>
+            </div>
+            <div class="form-group">
+              <label class="field-label" for="appt-time" data-i18n="appt_time">Time</label>
+              <input type="time" id="appt-time" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="appt-doctor" data-i18n="appt_doctor">Doctor / Clinic Name</label>
+            <input type="text" id="appt-doctor" required maxlength="100" placeholder="Dr. Name or Clinic" data-i18n-ph="appt_doctor_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="appt-dept" data-i18n="appt_dept">Department / Speciality</label>
+            <input type="text" id="appt-dept" maxlength="100" placeholder="e.g. General Medicine, Cardiology" data-i18n-ph="appt_dept_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="appt-notes" data-i18n="appt_notes">Notes</label>
+            <textarea class="field-textarea" id="appt-notes" maxlength="300" placeholder="Purpose of visit, questions to ask…" data-i18n-ph="appt_notes_ph" style="min-height:56px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" data-i18n="save_appt">Save Appointment</button>
+          <button type="button" class="btn btn-ghost mt-1" onclick="toggleApptForm()" data-i18n="cancel">Cancel</button>
+        </form>
+      </div>
+
+      <div id="appt-list"></div>
+    </section>
+
+    <!-- ╔══ TAB: PROFILE ════════════════════════════════════════ -->
+    <section id="tab-profile" class="tab">
+      <h2 class="section-title" data-i18n="profile">Profile</h2>
+
+      <form id="prof-form" onsubmit="saveProfile(event)" novalidate>
+
+        <fieldset>
+          <legend data-i18n="personal_info">Personal Information</legend>
+          <div class="form-group">
+            <label class="field-label" for="prof-name" data-i18n="full_name">Full Name</label>
+            <input type="text" id="prof-name" required maxlength="100" placeholder="Patient Name" data-i18n-ph="full_name_ph">
+          </div>
+          <div class="field-row">
+            <div class="form-group">
+              <label class="field-label" for="prof-dob" data-i18n="date_of_birth">Date of Birth</label>
+              <input type="date" id="prof-dob" required>
+            </div>
+            <div class="form-group">
+              <label class="field-label" for="prof-gender" data-i18n="gender">Gender</label>
+              <select id="prof-gender" class="field-select">
+                <option value="" data-i18n-opt="gender_select">Select</option>
+                <option value="male" data-i18n-opt="gender_male">Male</option>
+                <option value="female" data-i18n-opt="gender_female">Female</option>
+                <option value="other" data-i18n-opt="gender_other">Other</option>
+                <option value="prefer_not" data-i18n-opt="gender_na">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="prof-blood" data-i18n="blood_group">Blood Group</label>
+            <select id="prof-blood" class="field-select">
+              <option value="" data-i18n-opt="blood_unknown">Unknown / Not tested</option>
+              <option value="A+">A+</option><option value="A-">A−</option>
+              <option value="B+">B+</option><option value="B-">B−</option>
+              <option value="O+">O+</option><option value="O-">O−</option>
+              <option value="AB+">AB+</option><option value="AB-">AB−</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="medical_history">Medical History</legend>
+          <div class="form-group">
+            <label class="field-label" for="prof-allergy" data-i18n="known_allergies">Known Allergies</label>
+            <textarea class="field-textarea" id="prof-allergy" maxlength="500"
+                      placeholder="Drug allergies, food allergies, environmental…" data-i18n-ph="allergies_ph" style="min-height:60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="prof-chronic" data-i18n="chronic_conditions">Chronic Conditions / Diseases</label>
+            <textarea class="field-textarea" id="prof-chronic" maxlength="500"
+                      placeholder="Diabetes, Hypertension, Asthma…" data-i18n-ph="chronic_ph" style="min-height:60px;"></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="emergency_contact">Emergency Contact</legend>
+          <div class="form-group">
+            <label class="field-label" for="prof-emerg-name" data-i18n="contact_name">Contact Name</label>
+            <input type="text" id="prof-emerg-name" required maxlength="100" placeholder="Full name" data-i18n-ph="contact_name_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="prof-emerg-rel" data-i18n="relationship">Relationship</label>
+            <input type="text" id="prof-emerg-rel" maxlength="50" placeholder="e.g. Spouse, Parent, Sibling" data-i18n-ph="relationship_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="prof-emerg-phone" data-i18n="contact_phone">Contact Phone</label>
+            <!-- India-aware phone validation -->
+            <input type="tel" id="prof-emerg-phone" required
+                   pattern="(\+91[0-9]{10}|[0-9]{10})"
+                   maxlength="13"
+                   placeholder="10-digit mobile or +91 followed by 10 digits" data-i18n-ph="contact_phone_ph">
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary" data-i18n="update_profile">Update Profile</button>
+      </form>
+
+      <hr class="divider">
+
+      <!-- ── Patient Health Summary (NEW) ─────────────── -->
+      <button class="btn btn-secondary mt-1" onclick="generatePatientReport()" data-i18n="generate_report">
+        Generate Patient Health Summary
+      </button>
+
+      <hr class="divider">
+
+      <!-- ── Research Data Export (Study ID + study day) ─ -->
+      <div class="research-disclaimer">
+        <strong style="color:var(--indigo);" data-i18n="research_export_title">M.Pharm Research Data Export</strong><br>
+        <span data-i18n="research_export_desc1">The export below contains no personal identifiers (name, phone, DOB, emergency contact, doctor names, or free-text notes removed).</span><br><br>
+        <span data-i18n="research_export_desc2">Data is referenced by Study ID and Study Day rather than raw dates to minimise re-identification risk. This de-identified data may be shared with your RIPER research supervisor for dissertation analysis.</span>
+      </div>
+
+      <button class="btn btn-secondary mt-1" onclick="exportResearchData()" id="btn-export" data-i18n="export_research">
+        Export De-identified Research Data
+      </button>
+      <div id="export-box" class="survey-box hidden"></div>
+      <button id="btn-copy-export" class="btn btn-ghost mt-1 hidden" onclick="copyExport()" data-i18n="copy_export">
+        Copy Export String
+      </button>
+
+      <hr class="divider">
+
+      <!-- ── Right to Erasure (distinguishes device vs study) ─ -->
+      <p class="text-muted" style="margin-bottom:0.5rem;" data-i18n="erase_desc_device">
+        Delete data stored on this device (profile, medications, symptom logs, appointments, adherence records, and consent).
+      </p>
+      <p class="text-muted" style="font-size:0.72rem;margin-bottom:0.75rem;" data-i18n="erase_desc_study">
+        Note: Deleting local data does not automatically withdraw you from the research study or erase data already exported and stored by the research team. To formally withdraw from the study, please contact your research supervisor.
+      </p>
+      <button class="btn btn-ghost" onclick="deleteAllData()" id="btn-erase" data-i18n="erase_btn">
+        🗑 Delete All My Data (Right to Erasure)
+      </button>
+    </section>
+
+  </div><!-- /app-core -->
+</main>
+
+<!-- ═══ BOTTOM NAV ════════════════════════════════════════════ -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="nav-btn active" onclick="switchTab('dashboard',this)" aria-label="Dashboard">
+    <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <span data-i18n="nav_dash">Home</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('medications',this)" aria-label="Medications">
+    <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+    <span data-i18n="nav_meds">Meds</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('symptoms',this)" aria-label="Symptoms">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    <span data-i18n="nav_sym">Symptoms</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('appts',this)" aria-label="Appointments">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span data-i18n="nav_appts">Visits</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('profile',this)" aria-label="Profile">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span data-i18n="nav_prof">Profile</span>
+  </button>
+</nav>
+
+<!-- ═══ SAFETY ALERT MODAL (Redesigned — escalation, NOT diagnosis) -->
+<div id="safety-modal" role="alertdialog" aria-modal="true" aria-labelledby="safety-heading">
+  <div style="font-size:3.5rem;margin-bottom:0.5rem;">⚠️</div>
+  <h2 id="safety-heading" data-i18n="safety_title">⚠️ Reading May Need Attention</h2>
+  <p id="safety-msg" data-i18n="safety_msg">This reading may require urgent medical attention.</p>
+  <p style="color:#ffcccc;font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;" data-i18n="safety_seek_help">
+    If you have any of the following severe symptoms, seek emergency medical care immediately:
+  </p>
+  <ul class="warning-list">
+    <li data-i18n="safety_sym1">Chest pain or tightness</li>
+    <li data-i18n="safety_sym2">Difficulty breathing</li>
+    <li data-i18n="safety_sym3">Fainting or severe dizziness</li>
+    <li data-i18n="safety_sym4">Sudden weakness or numbness</li>
+    <li data-i18n="safety_sym5">Confusion or trouble speaking</li>
+    <li data-i18n="safety_sym6">Severe bleeding</li>
+  </ul>
+  <p style="color:#ffcccc;font-size:0.85rem;max-width:320px;line-height:1.5;margin-bottom:1rem;" data-i18n="safety_recommend">
+    Please seek professional evaluation. Do not attempt to self-diagnose based on this reading alone.
+  </p>
+  <a href="tel:" id="modal-call-btn" class="call-btn" data-i18n="call_emergency">📞 Call Emergency Contact</a>
+  <p class="dismiss-countdown" id="safety-countdown"></p>
+  <button id="safety-dismiss-btn" onclick="dismissSafetyAlert()" data-i18n="dismiss_safety">I understand — Close</button>
+</div>
+
+<!-- ═══ PATIENT REPORT (printable → PDF) ═══════════════════════ -->
+<div id="patient-report" class="patient-report"></div>
+
+<!-- ═══ TOAST ════════════════════════════════════════════════ -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ═══ SCRIPTS ═══════════════════════════════════════════════ -->
+<script src="js/i18n.js"></script>
+<script src="js/db.js"></script>
+<script src="js/adherence.js"></script>
+<script src="js/reminders.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+
+<!-- PWA Install Banner -->
+<div id="pwa-install-banner">
+  <div class="install-text">
+    <strong>Install PMAS</strong><br>
+    Add to your home screen for quick access
+  </div>
+  <button id="pwa-install-btn" onclick="installPWA()">Install</button>
+  <button id="pwa-install-close" onclick="closeInstallBanner()" aria-label="Dismiss">×</button>
+</div>
+
+</body>
+</html>

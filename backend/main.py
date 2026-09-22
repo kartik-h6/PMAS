@@ -1,0 +1,616 @@
+"""
+PMAS — FastAPI Backend Server
+Multilingual Transition-of-Care & Clinical Adherence Engine
+Dual-Vault architecture: Vault A (PII) | Vault B (Clinical & HEOR)
+"""
+import os
+from datetime import date, datetime, timezone
+from uuid import uuid4
+from typing import List, Optional
+
+from fastapi import FastAPI, Depends, HTTPException, status, Query
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select, func, and_
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import get_db, Base, engine, User, UserRole, PatientProfile, MedicationPlan, AdherenceRecord, DoseStatus, SymptomTelemetry, Appointment, SecurityAuditTrail, StudyMetadata
+from schemas import (
+    UserRegister, UserLogin, TokenResponse,
+    PatientProfileCreate, PatientProfileResponse,
+    MedicationPlanCreate, MedicationPlanResponse,
+    AdherenceRecordCreate, AdherenceRecordResponse, AdherenceSummary,
+    SymptomLogCreate, SymptomLogResponse, SymptomResponse,
+    AppointmentCreate, AppointmentResponse,
+    PatientEnrollment, PharmacistDashboard
+)
+from auth import (
+    hash_password, verify_password, create_access_token,
+    get_current_user, require_role, require_pharmacist_or_admin
+)
+
+app = FastAPI(
+    title="PMAS API",
+    description="Multilingual Transition-of-Care & Clinical Adherence Engine",
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# ─── CORS ────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ═══════════════════════════════════════════════════════════════
+# HEALTH & SYSTEM
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/health")
+async def health_check():
+    return {"status": "ACTIVE", "system": "PMAS Cloud Core", "dpdp_compliant": True}
+
+
+@app.on_event("startup")
+async def startup():
+    """Create tables on startup (for development; use migrations in production)."""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+# ═══════════════════════════════════════════════════════════════
+# AUTHENTICATION
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/auth/register", response_model=TokenResponse)
+async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
+    """Register a new patient or pharmacist."""
+    existing = await db.execute(select(User).where(User.phone_number == user_data.phone_number))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Phone number already registered")
+
+    user = User(
+        phone_number=user_data.phone_number,
+        password_hash=hash_password(user_data.password),
+        role=UserRole(user_data.role),
+        preferred_language=user_data.preferred_language
+    )
+    db.add(user)
+    await db.flush()
+
+    # Assign Study ID for patients
+    if user.role == UserRole.patient:
+        study_meta = StudyMetadata(
+            user_id=user.id,
+            study_id=f"PMAS-{str(uuid4().int)[:6]}",
+            baseline_date=date.today()
+        )
+        db.add(study_meta)
+
+    # Audit
+    db.add(SecurityAuditTrail(performed_by=user.id, action="REGISTER", target_resource="users"))
+
+    token = create_access_token(user.id, user.role.value)
+    return TokenResponse(access_token=token, role=user.role.value, user_id=str(user.id))
+
+
+@app.post("/api/v1/auth/login", response_model=TokenResponse)
+async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
+    """Login with phone number and password."""
+    result = await db.execute(select(User).where(User.phone_number == credentials.phone_number))
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account deactivated")
+
+    # Audit
+    db.add(SecurityAuditTrail(performed_by=user.id, action="LOGIN", target_resource="auth"))
+
+    token = create_access_token(user.id, user.role.value)
+    return TokenResponse(access_token=token, role=user.role.value, user_id=str(user.id))
+
+
+# ═══════════════════════════════════════════════════════════════
+# PATIENT PROFILE (Vault A)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/profile", response_model=PatientProfileResponse)
+async def create_profile(
+    profile_data: PatientProfileCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Create or update patient profile."""
+    existing = await db.execute(select(PatientProfile).where(PatientProfile.user_id == user.id))
+    profile = existing.scalar_one_or_none()
+
+    if profile:
+        # Update existing
+        for key, val in profile_data.dict().items():
+            setattr(profile, key, val)
+    else:
+        profile = PatientProfile(user_id=user.id, **profile_data.dict())
+        db.add(profile)
+
+    db.add(SecurityAuditTrail(performed_by=user.id, action="PROFILE_UPDATE", target_resource="patient_profiles"))
+    await db.flush()
+    return profile
+
+
+@app.get("/api/v1/profile", response_model=PatientProfileResponse)
+async def get_profile(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get current user's profile."""
+    result = await db.execute(select(PatientProfile).where(PatientProfile.user_id == user.id))
+    profile = result.scalar_one_or_none()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+
+# ═══════════════════════════════════════════════════════════════
+# MEDICATIONS (Vault B)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/medications", response_model=MedicationPlanResponse)
+async def create_medication(
+    med_data: MedicationPlanCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Add a medication to the patient's regimen."""
+    med = MedicationPlan(
+        patient_id=user.id,
+        prescribed_by=user.id,  # Self-prescribed by patient; pharmacist uses portal
+        **med_data.dict()
+    )
+    db.add(med)
+    db.add(SecurityAuditTrail(performed_by=user.id, action="MEDICATION_ADD", target_resource="medication_plans"))
+    await db.flush()
+    return med
+
+
+@app.get("/api/v1/medications", response_model=List[MedicationPlanResponse])
+async def get_medications(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    active_only: bool = Query(default=False)
+):
+    """Get all medications for the current patient."""
+    query = select(MedicationPlan).where(MedicationPlan.patient_id == user.id)
+    if active_only:
+        query = query.where(MedicationPlan.is_active == True)
+    result = await db.execute(query.order_by(MedicationPlan.created_at.desc()))
+    return result.scalars().all()
+
+
+@app.delete("/api/v1/medications/{med_id}")
+async def delete_medication(
+    med_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Soft-delete a medication (mark as inactive)."""
+    result = await db.execute(select(MedicationPlan).where(MedicationPlan.id == med_id))
+    med = result.scalar_one_or_none()
+    if not med or med.patient_id != user.id:
+        raise HTTPException(status_code=404, detail="Medication not found")
+    med.is_active = False
+    db.add(SecurityAuditTrail(performed_by=user.id, action="MEDICATION_DELETE", target_resource="medication_plans"))
+    return {"status": "deleted"}
+
+
+# ═══════════════════════════════════════════════════════════════
+# ADHERENCE TRACKING (Vault B — PRIMARY OUTCOME)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/adherence", response_model=AdherenceRecordResponse)
+async def record_adherence(
+    record_data: AdherenceRecordCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Record a dose as taken, delayed, or missed."""
+    # Check if already exists (upsert)
+    existing = await db.execute(
+        select(AdherenceRecord).where(
+            and_(
+                AdherenceRecord.patient_id == user.id,
+                AdherenceRecord.medication_id == record_data.medication_id,
+                AdherenceRecord.dose_date == record_data.dose_date,
+                AdherenceRecord.dose_slot == record_data.dose_slot
+            )
+        )
+    )
+    record = existing.scalar_one_or_none()
+
+    if record:
+        record.status = DoseStatus(record_data.status)
+    else:
+        record = AdherenceRecord(
+            patient_id=user.id,
+            medication_id=record_data.medication_id,
+            dose_date=record_data.dose_date,
+            dose_slot=record_data.dose_slot,
+            status=DoseStatus(record_data.status)
+        )
+        db.add(record)
+
+    await db.flush()
+    return record
+
+
+@app.get("/api/v1/adherence/today", response_model=AdherenceSummary)
+async def get_today_adherence(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get today's adherence summary for the current patient."""
+    today = date.today()
+    meds_result = await db.execute(
+        select(MedicationPlan).where(
+            and_(
+                MedicationPlan.patient_id == user.id,
+                MedicationPlan.is_active == True,
+                MedicationPlan.start_date <= today,
+                MedicationPlan.end_date >= today
+            )
+        )
+    )
+    meds = meds_result.scalars().all()
+
+    total_scheduled = 0
+    for m in meds:
+        if m.frequency_morning: total_scheduled += 1
+        if m.frequency_afternoon: total_scheduled += 1
+        if m.frequency_night: total_scheduled += 1
+
+    records_result = await db.execute(
+        select(AdherenceRecord).where(
+            and_(AdherenceRecord.patient_id == user.id, AdherenceRecord.dose_date == today)
+        )
+    )
+    records = records_result.scalars().all()
+    total_taken = sum(1 for r in records if r.status == DoseStatus.taken)
+
+    return AdherenceSummary(
+        total_scheduled=total_scheduled,
+        total_taken=total_taken,
+        adherence_pct=round((total_taken / total_scheduled * 100), 1) if total_scheduled > 0 else 0
+    )
+
+
+@app.get("/api/v1/adherence/weekly", response_model=AdherenceSummary)
+async def get_weekly_adherence(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get weekly adherence summary (last 7 days)."""
+    today = date.today()
+    start = today.replace(day=today.day - 6) if today.day > 6 else today
+
+    meds_result = await db.execute(
+        select(MedicationPlan).where(MedicationPlan.patient_id == user.id)
+    )
+    meds = meds_result.scalars().all()
+
+    total_scheduled = 0
+    total_taken = 0
+
+    for i in range(7):
+        d = today.replace(day=today.day - i)
+        active_meds = [m for m in meds if m.start_date <= d and m.end_date >= d]
+        for m in active_meds:
+            if m.frequency_morning: total_scheduled += 1
+            if m.frequency_afternoon: total_scheduled += 1
+            if m.frequency_night: total_scheduled += 1
+
+    records_result = await db.execute(
+        select(AdherenceRecord).where(
+            and_(
+                AdherenceRecord.patient_id == user.id,
+                AdherenceRecord.dose_date >= start,
+                AdherenceRecord.dose_date <= today
+            )
+        )
+    )
+    records = records_result.scalars().all()
+    total_taken = sum(1 for r in records if r.status == DoseStatus.taken)
+
+    return AdherenceSummary(
+        total_scheduled=total_scheduled,
+        total_taken=total_taken,
+        adherence_pct=round((total_taken / total_scheduled * 100), 1) if total_scheduled > 0 else 0
+    )
+
+
+# ═══════════════════════════════════════════════════════════════
+# SYMPTOM TELEMETRY (Vault B)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/telemetry/symptom", response_model=SymptomResponse)
+async def record_symptom(
+    log: SymptomLogCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Record a symptom telemetry entry with ICMR safety engine."""
+    red_flag = False
+    action_msg = None
+
+    # Safety escalation — not diagnosis
+    if log.pain_score >= 8 or (log.systolic_bp and log.systolic_bp >= 180):
+        red_flag = True
+        action_msg = "SAFETY ESCALATION: This reading may require urgent medical attention. Please seek professional evaluation."
+
+    symptom = SymptomTelemetry(
+        patient_id=user.id,
+        log_date=log.log_date,
+        pain_score=log.pain_score,
+        systolic_bp=log.systolic_bp,
+        diastolic_bp=log.diastolic_bp,
+        temperature=log.temperature,
+        weight_kg=log.weight_kg,
+        symptoms_observed=log.symptoms_observed,
+        side_effects=log.side_effects,
+        additional_notes=log.additional_notes,
+        red_flag_triggered=red_flag
+    )
+    db.add(symptom)
+    db.add(SecurityAuditTrail(performed_by=user.id, action="SYMPTOM_LOG", target_resource="symptom_telemetry"))
+
+    return SymptomResponse(status="SUCCESS", red_flag_alert=red_flag, action_required=action_msg)
+
+
+@app.get("/api/v1/telemetry/symptoms", response_model=List[SymptomLogResponse])
+async def get_symptoms(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    limit: int = Query(default=50, le=200)
+):
+    """Get symptom logs for the current patient."""
+    result = await db.execute(
+        select(SymptomTelemetry)
+        .where(SymptomTelemetry.patient_id == user.id)
+        .order_by(SymptomTelemetry.log_date.desc())
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+# ═══════════════════════════════════════════════════════════════
+# APPOINTMENTS
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/appointments", response_model=AppointmentResponse)
+async def create_appointment(
+    appt_data: AppointmentCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Create a new appointment."""
+    appt = Appointment(patient_id=user.id, **appt_data.dict())
+    db.add(appt)
+    await db.flush()
+    return appt
+
+
+@app.get("/api/v1/appointments", response_model=List[AppointmentResponse])
+async def get_appointments(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    upcoming_only: bool = Query(default=False)
+):
+    """Get appointments for the current patient."""
+    query = select(Appointment).where(Appointment.patient_id == user.id)
+    if upcoming_only:
+        query = query.where(Appointment.appointment_date >= date.today())
+    result = await db.execute(query.order_by(Appointment.appointment_date.desc()))
+    return result.scalars().all()
+
+
+# ═══════════════════════════════════════════════════════════════
+# PHARMACIST PORTAL — Patient Enrollment & Management
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/v1/pharmacist/enroll", response_model=TokenResponse)
+async def enroll_patient(
+    enrollment: PatientEnrollment,
+    pharmacist: User = Depends(require_pharmacist_or_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """Pharmacist enrolls a new patient — creates account and profile."""
+    existing = await db.execute(select(User).where(User.phone_number == enrollment.phone_number))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Patient already enrolled")
+
+    temp_password = str(uuid4().int)[:8]
+    user = User(
+        phone_number=enrollment.phone_number,
+        password_hash=hash_password(temp_password),
+        role=UserRole.patient,
+        preferred_language=enrollment.preferred_language
+    )
+    db.add(user)
+    await db.flush()
+
+    profile = PatientProfile(
+        user_id=user.id,
+        full_name=enrollment.full_name,
+        hospital_mrn=enrollment.hospital_mrn,
+        emergency_contact_name=enrollment.emergency_contact_name,
+        emergency_contact_phone=enrollment.emergency_contact_phone,
+        date_of_birth=enrollment.date_of_birth,
+        gender=enrollment.gender,
+        blood_group=enrollment.blood_group,
+        known_allergies=enrollment.known_allergies,
+        chronic_conditions=enrollment.chronic_conditions,
+        consent_timestamp=datetime.now(timezone.utc),
+        consent_version="1.0-RIPER",
+        consent_status=True
+    )
+    db.add(profile)
+
+    study_meta = StudyMetadata(
+        user_id=user.id,
+        study_id=f"PMAS-{str(uuid4().int)[:6]}",
+        baseline_date=date.today()
+    )
+    db.add(study_meta)
+
+    db.add(SecurityAuditTrail(
+        performed_by=pharmacist.id,
+        action="PATIENT_ENROLLED",
+        target_resource="users"
+    ))
+
+    token = create_access_token(user.id, user.role.value)
+    return TokenResponse(access_token=token, role=user.role.value, user_id=str(user.id))
+
+
+@app.get("/api/v1/pharmacist/dashboard", response_model=PharmacistDashboard)
+async def pharmacist_dashboard(
+    pharmacist: User = Depends(require_pharmacist_or_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get dashboard stats for pharmacist."""
+    total_patients = await db.scalar(
+        select(func.count(User.id)).where(User.role == UserRole.patient)
+    )
+
+    active_meds = await db.scalar(
+        select(func.count(MedicationPlan.id)).where(MedicationPlan.is_active == True)
+    )
+
+    today = date.today()
+    adherence_records = await db.execute(
+        select(AdherenceRecord).where(AdherenceRecord.dose_date == today)
+    )
+    records = adherence_records.scalars().all()
+    taken_today = sum(1 for r in records if r.status == DoseStatus.taken)
+    total_today = len(records)
+    adherence_avg = round((taken_today / total_today * 100), 1) if total_today > 0 else 0
+
+    red_flags = await db.scalar(
+        select(func.count(SymptomTelemetry.id)).where(SymptomTelemetry.red_flag_triggered == True)
+    )
+
+    recent_patients_result = await db.execute(
+        select(PatientProfile, User)
+        .join(User, PatientProfile.user_id == User.id)
+        .where(User.role == UserRole.patient)
+        .order_by(PatientProfile.created_at.desc())
+        .limit(10)
+    )
+    recent = [
+        {
+            "name": p.full_name,
+            "phone": u.phone_number,
+            "study_id": None  # Would need join with StudyMetadata
+        }
+        for p, u in recent_patients_result
+    ]
+
+    return PharmacistDashboard(
+        total_patients=total_patients or 0,
+        active_medications=active_meds or 0,
+        today_adherence_avg=adherence_avg,
+        red_flag_alerts=red_flags or 0,
+        recent_patients=recent
+    )
+
+
+# ═══════════════════════════════════════════════════════════════
+# HEOR RESEARCH EXPORT (De-identified)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/research/export")
+async def research_export(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Generate a de-identified research export for HEOR analysis."""
+    study_meta = await db.execute(
+        select(StudyMetadata).where(StudyMetadata.user_id == user.id)
+    )
+    study = study_meta.scalar_one_or_none()
+
+    if not study:
+        raise HTTPException(status_code=404, detail="Study metadata not found")
+
+    study_day = (date.today() - study.baseline_date).days if study.baseline_date else 0
+
+    # Adherence records — study_day instead of raw dates
+    adh_result = await db.execute(
+        select(AdherenceRecord).where(AdherenceRecord.patient_id == user.id)
+    )
+    adherence_records = [
+        {
+            "study_day": (r.dose_date - study.baseline_date).days if study.baseline_date else 0,
+            "slot": r.dose_slot,
+            "status": r.status.value
+        }
+        for r in adh_result.scalars().all()
+    ]
+
+    # Symptom telemetry — study_day, no free text
+    sym_result = await db.execute(
+        select(SymptomTelemetry).where(SymptomTelemetry.patient_id == user.id)
+    )
+    symptoms = [
+        {
+            "study_day": (s.log_date - study.baseline_date).days if study.baseline_date else 0,
+            "pain_score": s.pain_score,
+            "temp_c": s.temperature,
+            "weight_kg": s.weight_kg,
+            "bp_sys": s.systolic_bp,
+            "bp_dia": s.diastolic_bp,
+            "has_symptoms": 1 if s.symptoms_observed else 0,
+            "has_side_effects": 1 if s.side_effects else 0,
+            "red_flag": s.red_flag_triggered
+        }
+        for s in sym_result.scalars().all()
+    ]
+
+    return {
+        "study": "PMAS-RIPER-MPharm",
+        "study_id": study.study_id,
+        "study_day_at_export": study_day,
+        "adherence": {
+            "total_records": len(adherence_records),
+            "records": adherence_records
+        },
+        "symptoms": {
+            "total_logs": len(symptoms),
+            "entries": symptoms
+        },
+        "data_governance": {
+            "data_location": "cloud_postgresql",
+            "pii_in_export": False,
+            "uses_study_day": True,
+            "raw_dates_in_export": False
+        }
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# RUN
+# ═══════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host=os.getenv("HOST", "0.0.0.0"),
+        port=int(os.getenv("PORT", 8000)),
+        reload=True
+    )

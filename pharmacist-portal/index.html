@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PMAS Pharmacist Portal — Patient enrollment, medication management, and adherence monitoring dashboard.">
+<title>PMAS — Pharmacist Portal</title>
+<style>
+:root {
+  --bg:#0B1120; --surface:#1A2540; --surface2:#222f50; --surface3:#2a3a5f;
+  --teal:#0ECDA0; --indigo:#6C63FF; --text:#E8F4F8; --muted:#8A9BBE;
+  --red:#FF6B6B; --amber:#F5A623; --green:#2ECC71; --border:rgba(255,255,255,0.08);
+  --radius:10px; --font:system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+*:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+a{color:var(--teal);text-decoration:none}
+
+/* Layout */
+.container{max-width:1140px;margin:0 auto;padding:0 1.5rem}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.header h1{font-size:1.2rem;color:var(--teal);display:flex;align-items:center;gap:0.5rem}
+.header img{width:28px;height:28px;border-radius:6px}
+.header-actions{display:flex;gap:0.75rem;align-items:center}
+.badge{font-size:0.65rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.badge-teal{background:rgba(14,205,160,0.15);color:var(--teal)}
+.badge-indigo{background:rgba(108,99,255,0.15);color:var(--indigo)}
+.badge-amber{background:rgba(245,166,35,0.15);color:var(--amber)}
+.badge-red{background:rgba(255,107,107,0.15);color:var(--red)}
+
+/* Login */
+.login-wrap{max-width:400px;margin:4rem auto;padding:0 1rem}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem}
+.login-card h2{margin-bottom:1rem;font-size:1.3rem}
+.login-card p{color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem}
+
+/* Forms */
+.form-group{margin-bottom:1rem}
+.form-label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:0.3rem}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:var(--text);padding:0.6rem 0.9rem;font-size:0.92rem;font-family:var(--font)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--teal);outline:none}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.7rem 1.5rem;border:none;border-radius:7px;font-family:var(--font);font-size:0.9rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;text-decoration:none}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--teal);color:var(--bg)}
+.btn-secondary{background:var(--indigo);color:#fff}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-block{display:flex;width:100%}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.card h3{font-size:1rem;margin-bottom:0.75rem}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center}
+.stat-num{font-size:2rem;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-teal .stat-num{color:var(--teal)}
+.stat-indigo .stat-num{color:var(--indigo)}
+.stat-amber .stat-num{color:var(--amber)}
+.stat-red .stat-num{color:var(--red)}
+.stat-lbl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+th{text-align:left;padding:0.6rem 0.75rem;border-bottom:2px solid var(--border);color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border)}
+tr:hover td{background:var(--surface2)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
+.modal h2{margin-bottom:1rem}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer}
+
+/* Tabs */
+.tabs{display:flex;gap:0.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.tab-btn{background:none;border:none;color:var(--muted);padding:0.6rem 1rem;font-size:0.9rem;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Toast */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);color:var(--text);padding:0.6rem 1.2rem;border-radius:20px;font-size:0.82rem;border:1px solid var(--border);opacity:0;transition:all 0.25s;pointer-events:none;z-index:300}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.hidden{display:none!important}
+.text-muted{color:var(--muted)}
+.text-sm{font-size:0.82rem}
+.mt-2{margin-top:1rem}
+.mt-4{margin-top:2rem}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═════════════════════════════════════════════ -->
+<header class="header">
+  <h1>
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiPjxwYXRoIGZpbGw9IiMwRUNEQTAiIGQ9Ik0yNTYgMEExNTIgMTUyIDAgMCAwIDEwNCAxNTJjMCA4OCAxNTIgMzYwIDE1MiAzNjBzMTUyLTI3MiAxNTItMzYwQTE1MiAxNTIgMCAwIDAgMjU2IDB6bTAgMjI0YTcyIDcyIDAgMSAxIDAtMTQ0IDcyIDcyIDAgMCAxIDAgMTQ0eiIvPjwvc3ZnPg==" alt="PMAS">
+    PMAS Pharmacist Portal
+  </h1>
+  <div class="header-actions">
+    <span id="user-badge" class="badge badge-teal hidden">Pharmacist</span>
+    <button id="logout-btn" class="btn btn-ghost hidden" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<!-- ═══ LOGIN ══════════════════════════════════════════════ -->
+<div id="login-view" class="login-wrap">
+  <div class="login-card">
+    <h2>Pharmacist Login</h2>
+    <p>Sign in to manage patients, assign medications, and monitor adherence.</p>
+    <form id="login-form" onsubmit="login(event)">
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="login-phone" class="form-input" required pattern="^(\+91\d{10}|\d{10})$" placeholder="10-digit mobile or +91 followed by 10 digits">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-password" class="form-input" required placeholder="Your password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+    <p class="text-muted text-sm mt-2" style="margin-top:1rem">
+      Need a pharmacist account? Contact your administrator or use the register form below.
+    </p>
+    <button class="btn btn-ghost btn-block mt-2" onclick="toggleRegister()">Register as Pharmacist</button>
+    <form id="register-form" class="hidden mt-2" onsubmit="register(event)">
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="reg-phone" class="form-input" required pattern="^(\+91\d{10}|\d{10})$" placeholder="10-digit mobile">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="reg-password" class="form-input" required minlength="6" placeholder="Min 6 characters">
+      </div>
+      <button type="submit" class="btn btn-secondary btn-block">Register</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══════════════════════════════════════════ -->
+<div id="dashboard-view" class="container hidden" style="padding-top:2rem;padding-bottom:4rem">
+  
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card stat-teal">
+      <div class="stat-num" id="stat-patients">—</div>
+      <div class="stat-lbl">Total Patients</div>
+    </div>
+    <div class="stat-card stat-indigo">
+      <div class="stat-num" id="stat-meds">—</div>
+      <div class="stat-lbl">Active Medications</div>
+    </div>
+    <div class="stat-card stat-amber">
+      <div class="stat-num" id="stat-adherence">—</div>
+      <div class="stat-lbl">Today's Avg Adherence</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-num" id="stat-redflags">—</div>
+      <div class="stat-lbl">Red Flag Alerts</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('patients',this)">Patients</button>
+    <button class="tab-btn" onclick="switchTab('enroll',this)">Enroll New Patient</button>
+  </div>
+
+  <!-- Patients list -->
+  <div id="tab-patients" class="tab-content active">
+    <div class="card">
+      <h3>Recent Patients</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Phone</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="patients-tbody">
+            <tr><td colspan="4" class="text-muted text-center">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enroll patient -->
+  <div id="tab-enroll" class="tab-content">
+    <div class="card">
+      <h3>Enroll New Patient</h3>
+      <form onsubmit="enrollPatient(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" id="enr-name" class="form-input" required placeholder="Patient name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="enr-phone" class="form-input" required pattern="^(\+91\d{10}|\d{10})$" placeholder="10-digit mobile">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Hospital MRN</label>
+            <input type="text" id="enr-mrn" class="form-input" placeholder="Medical Record Number">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Language</label>
+            <select id="enr-lang" class="form-input">
+              <option value="en">English</option>
+              <option value="te">Telugu</option>
+              <option value="kn">Kannada</option>
+              <option value="ta">Tamil</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Name</label>
+            <input type="text" id="enr-emerg-name" class="form-input" placeholder="Contact name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Phone</label>
+            <input type="tel" id="enr-emerg-phone" class="form-input" placeholder="10-digit mobile">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" id="enr-dob" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select id="enr-gender" class="form-input">
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Known Allergies</label>
+          <textarea id="enr-allergies" class="form-textarea" placeholder="Drug allergies, food allergies..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chronic Conditions</label>
+          <textarea id="enr-chronic" class="form-textarea" placeholder="Diabetes, Hypertension, Asthma..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Enroll Patient</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══════════════════════════════════════════════ -->
+<div id="toast"></div>
+
+<script>
+// ─── Config ──────────────────────────────────────────────────
+const API_BASE = localStorage.getItem('pmas_api_url') || prompt('Enter PMAS API URL:', 'http://localhost:8000');
+localStorage.setItem('pmas_api_url', API_BASE);
+
+let token = localStorage.getItem('pmas_pharmacist_token');
+let userRole = localStorage.getItem('pmas_user_role');
+
+// ─── Helpers ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function apiCall(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  
+  const res = await fetch(API_BASE + endpoint, {
+    ...options,
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'API error');
+  return data;
+}
+
+// ─── Auth ────────────────────────────────────────────────────
+async function login(e) {
+  e.preventDefault();
+  try {
+    const res = await apiCall('/api/v1/auth/login', {
+      method: 'POST',
+      body: {
+        phone_number: document.getElementById('login-phone').value,
+        password: document.getElementById('login-password').value
+      }
+    });
+    token = res.access_token;
+    userRole = res.role;
+    localStorage.setItem('pmas_pharmacist_token', token);
+    localStorage.setItem('pmas_user_role', userRole);
+    showDashboard();
+  } catch (err) {
+    showToast('Login failed: ' + err.message);
+  }
+}
+
+async function register(e) {
+  e.preventDefault();
+  try {
+    const res = await apiCall('/api/v1/auth/register', {
+      method: 'POST',
+      body: {
+        phone_number: document.getElementById('reg-phone').value,
+        password: document.getElementById('reg-password').value,
+        role: 'pharmacist'
+      }
+    });
+    token = res.access_token;
+    userRole = res.role;
+    localStorage.setItem('pmas_pharmacist_token', token);
+    localStorage.setItem('pmas_user_role', userRole);
+    showDashboard();
+  } catch (err) {
+    showToast('Registration failed: ' + err.message);
+  }
+}
+
+function logout() {
+  token = null;
+  localStorage.removeItem('pmas_pharmacist_token');
+  localStorage.removeItem('pmas_user_role');
+  location.reload();
+}
+
+function toggleRegister() {
+  document.getElementById('register-form').classList.toggle('hidden');
+}
+
+// ─── Dashboard ───────────────────────────────────────────────
+async function showDashboard() {
+  document.getElementById('login-view').classList.add('hidden');
+  document.getElementById('dashboard-view').classList.remove('hidden');
+  document.getElementById('user-badge').classList.remove('hidden');
+  document.getElementById('logout-btn').classList.remove('hidden');
+  
+  await loadDashboard();
+}
+
+async function loadDashboard() {
+  try {
+    const data = await apiCall('/api/v1/pharmacist/dashboard');
+    document.getElementById('stat-patients').textContent = data.total_patients;
+    document.getElementById('stat-meds').textContent = data.active_medications;
+    document.getElementById('stat-adherence').textContent = data.today_adherence_avg + '%';
+    document.getElementById('stat-redflags').textContent = data.red_flag_alerts;
+    
+    const tbody = document.getElementById('patients-tbody');
+    if (data.recent_patients.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-muted text-center">No patients enrolled yet</td></tr>';
+    } else {
+      tbody.innerHTML = data.recent_patients.map(p => 
+        `<tr><td>${p.name}</td><td>${p.phone}</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn btn-ghost" style="padding:0.3rem 0.7rem;font-size:0.75rem" onclick="viewPatient('${p.phone}')">View</button></td></tr>`
+      ).join('');
+    }
+  } catch (err) {
+    showToast('Failed to load dashboard: ' + err.message);
+  }
+}
+
+async function enrollPatient(e) {
+  e.preventDefault();
+  try {
+    const data = await apiCall('/api/v1/pharmacist/enroll', {
+      method: 'POST',
+      body: {
+        phone_number: document.getElementById('enr-phone').value,
+        full_name: document.getElementById('enr-name').value,
+        hospital_mrn: document.getElementById('enr-mrn').value || null,
+        preferred_language: document.getElementById('enr-lang').value,
+        emergency_contact_name: document.getElementById('enr-emerg-name').value || null,
+        emergency_contact_phone: document.getElementById('enr-emerg-phone').value || null,
+        date_of_birth: document.getElementById('enr-dob').value || null,
+        gender: document.getElementById('enr-gender').value || null,
+        known_allergies: document.getElementById('enr-allergies').value || null,
+        chronic_conditions: document.getElementById('enr-chronic').value || null
+      }
+    });
+    showToast('Patient enrolled successfully ✓');
+    document.querySelector('#tab-enroll form').reset();
+    switchTab('patients', document.querySelector('.tab-btn'));
+    await loadDashboard();
+  } catch (err) {
+    showToast('Enrollment failed: ' + err.message);
+  }
+}
+
+function viewPatient(phone) {
+  showToast('Patient detail view coming soon: ' + phone);
+}
+
+// ─── Tabs ────────────────────────────────────────────────────
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── Init ────────────────────────────────────────────────────
+if (token && userRole) {
+  showDashboard();
+}
+</script>
+</body>
+</html>

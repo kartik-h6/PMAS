@@ -1,0 +1,40 @@
+{
+  "name": "PMAS \u2014 Medication & Adherence Support",
+  "short_name": "PMAS",
+  "description": "Pharmacist-led, multilingual, offline-first medication adherence support prototype.",
+  "version": "1.0.0",
+  "theme_color": "#0B1120",
+  "background_color": "#0B1120",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "./index.html",
+  "scope": "./",
+  "lang": "en",
+  "dir": "auto",
+  "categories": [
+    "health",
+    "medical",
+    "education"
+  ],
+  "author": "Kartik H. \u2014 RIPER M.Pharm Pharmacy Practice",
+  "icons": [
+    {
+      "src": "../assets/images/favicon/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../assets/images/favicon/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../assets/images/favicon/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

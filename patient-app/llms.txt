@@ -1,0 +1,51 @@
+# PMAS
+
+> Pharmacist-led, multilingual, offline-first medication adherence support prototype.
+> Developed by Kartik H. as M.Pharm Pharmacy Practice dissertation research at RIPER, Anantapur.
+
+## What this is
+
+PMAS is a browser-based research prototype that bridges the healthcare comprehension gap between clinical prescription and patient action. It provides medication adherence tracking (Taken/Delayed/Missed), multilingual patient-facing text (English, Telugu, Kannada, Tamil, Hindi), offline-first local storage, safety escalation (not diagnosis), and a de-identified research export structured for HEOR analysis.
+
+## Key details
+
+- **Version:** 1.1
+- **Author:** Kartik H. — B.Pharm (RGUHS), M.Pharm Pharmacy Practice (incoming, RIPER Anantapur)
+- **Institution:** Raghavendra Institute of Pharmaceutical Education and Research (RIPER), Anantapur, Andhra Pradesh, India
+- **Research context:** 5th International HEOR Conference, ISPOR India Andhra Pradesh Chapter
+- **ICMR discussion:** Vernacular communication direction shaped with Dr. Muniyandi Malaisamy (Scientist E, ICMR-NIRT)
+- **Status:** Research prototype — not for clinical deployment
+- **License:** Academic use only
+
+## Primary outcome
+
+Medication adherence rate, measured via the app's Taken/Delayed/Missed tracking, validated against MMAS-8 (Morisky Medication Adherence Scale).
+
+## Secondary outcomes
+
+- Medication understanding (pre-post counselling comprehension)
+- Patient engagement (30/60/90-day app retention)
+- Symptom burden change (pain, BP trends)
+- Counselling satisfaction
+- Language preference and comprehension
+
+## Technology
+
+Pure HTML, CSS, JavaScript. No frameworks, no build tools, no backend. Offline-first with browser localStorage. PWA-ready.
+
+## Important pages
+
+- [Landing page](/index.html)
+- [About the project](/about.html)
+- [Live interactive demo](/demo/index.html)
+- [Privacy policy](/privacy.html)
+- [Terms of use](/terms.html)
+- [Contact](/contact.html)
+
+## Design principles
+
+1. Earn continuity. Don't engineer dependency.
+2. Translate understanding, not just labels.
+3. Escalate, don't diagnose.
+4. Offline-first is a feature, not a limitation.
+5. Research instrument, not a product.

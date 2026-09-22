@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="About PMAS — the research prototype, the team, and the healthcare comprehension gap it addresses.">
+<link rel="icon" href="assets/images/favicon/favicon.png" type="image/svg+xml">
+<title>About — PMAS</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/utilities.css">
+<link rel="stylesheet" href="assets/css/animations.css">
+
+    <!-- ═══ AI-ERA META LAYER ═════════════════════════════════════ -->
+    <!-- Canonical URL -->
+    <link rel="canonical" href="/about.html">
+
+    <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
+    <meta property="og:title" content="About — PMAS">
+    <meta property="og:description" content="About PMAS — the research prototype, the team, and the healthcare comprehension gap it addresses.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/about.html">
+    <meta property="og:image" content="/assets/images/og/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="PMAS">
+    <meta property="og:locale" content="en_IN">
+    <meta property="og:locale:alternate" content="te_IN">
+    <meta property="og:locale:alternate" content="kn_IN">
+    <meta property="og:locale:alternate" content="ta_IN">
+    <meta property="og:locale:alternate" content="hi_IN">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About — PMAS">
+    <meta name="twitter:description" content="About PMAS — the research prototype, the team, and the healthcare comprehension gap it addresses.">
+    <meta name="twitter:image" content="/assets/images/og/og-image.png">
+    <meta name="twitter:creator" content="@kartik_pmas">
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#0B1120">
+    <meta name="color-scheme" content="dark light">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Resource preloads (performance) -->
+    <link rel="preload" href="/assets/css/style.css" as="style">
+    <link rel="preload" href="/assets/css/components.css" as="style">
+    <link rel="preload" href="/assets/js/main.js" as="script">
+
+    <!-- Preconnect (no external domains used — self-contained) -->
+
+    <!-- Service Worker registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('PMAS SW registered:', reg.scope))
+            .catch(err => console.warn('PMAS SW registration failed:', err));
+        });
+      }
+    </script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "PMAS",
+      "description": "Pharmacist-led, multilingual, offline-first medication adherence support prototype.",
+      "founder": {
+        "@type": "Person",
+        "name": "Kartik H."
+      },
+      "parentOrganization": {
+        "@type": "EducationalOrganization",
+        "name": "Raghavendra Institute of Pharmaceutical Education and Research (RIPER)",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Anantapur",
+          "addressRegion": "Andhra Pradesh",
+          "addressCountry": "IN"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@type": "MedicalStudy",
+      "name": "Post-Counseling Medication Adherence Support (PMAS)",
+      "studyDesign": "Quasi-experimental pre-post pilot study",
+      "studyLocation": {
+        "@type": "Place",
+        "name": "RIPER, Anantapur, Andhra Pradesh, India"
+      },
+      "investigator": {
+        "@type": "Person",
+        "name": "Kartik H.",
+        "jobTitle": "M.Pharm Pharmacy Practice Student"
+      },
+      "studySubject": {
+        "@type": "MedicalCondition",
+        "name": "Medication Non-Adherence in Chronic Disease Management"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About — PMAS",
+      "description": "About PMAS — the research prototype, the team, and the healthcare comprehension gap it addresses.",
+      "url": "/about.html",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "PMAS",
+        "url": "/"
+      },
+      "about": {
+        "@type": "MedicalCondition",
+        "name": "Medication Adherence in Chronic Disease Management"
+      }
+    }
+    </script>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="site-header" id="site-header">
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <img src="assets/images/favicon/favicon.png" alt="PMAS" style="width:28px;height:28px;border-radius:6px;"> PMAS 
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#research">Research</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="demo/index.html" target="_blank" rel="noopener" class="nav-cta">Try Demo</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="page-header">
+    <div class="hero-bg"></div>
+    <div class="container relative z-1">
+      <span class="badge badge-indigo">About PMAS</span>
+      <h1 class="mt-2">Bridging the healthcare comprehension gap.</h1>
+      <p>PMAS is a pharmacist-led, multilingual, offline-first medication adherence support prototype that transforms clinical prescriptions into patient-understandable, actionable guidance.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
+        <div class="reveal">
+          <h2 class="mb-3">The Origin</h2>
+          <p>PMAS began as a medication scheduling concept before the 5th International HEOR Conference (ISPOR India Andhra Pradesh Chapter). At that conference, a discussion with <strong>Dr. Muniyandi Malaisamy</strong> (Scientist E, ICMR-NIRT) shaped the project's vernacular communication direction — the idea that healthcare information must be translated not just linguistically, but conceptually, into formats patients can act on.</p>
+          <p>Dr. Malaisamy's observation that TB awareness programs with significant investment still face engagement challenges reinforced the core thesis: <strong>information is not the same as understanding.</strong></p>
+        </div>
+        <div class="card card-indigo reveal reveal-delay-1">
+          <h3 class="mb-2">Core Thesis</h3>
+          <p class="text-muted text-sm">Healthcare suffers from two distinct gaps:</p>
+          <div class="mt-2">
+            <p class="text-sm"><strong class="text-amber">Capability Gap:</strong> Systems produce information, but information overload exists without interpretation.</p>
+            <p class="text-sm mt-2"><strong class="text-teal">Comprehension Gap:</strong> Patients need interpretation, clarity, and actionable guidance — in their own language.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="badge badge-teal">Timeline</span>
+        <h2 class="mt-2">How PMAS evolved</h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item reveal">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Pre-conference</div>
+          <h4>PMAS concept originated</h4>
+          <p>Medication scheduling and reminder prototype developed as a B.Pharm graduate project concept.</p>
+        </div>
+        <div class="timeline-item indigo reveal reveal-delay-1">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">ISPOR HEOR Conference</div>
+          <h4>Vernacular direction shaped</h4>
+          <p>Discussion with Dr. Muniyandi Malaisamy (ICMR-NIRT) refined the project toward vernacular healthcare communication and the comprehension gap thesis.</p>
+        </div>
+        <div class="timeline-item reveal reveal-delay-2">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">v1.0 Review</div>
+          <h4>Comprehensive audit</h4>
+          <p>Detailed review identified 10 areas for improvement — from adherence tracking to safety logic redesign to complete multilingual coverage.</p>
+        </div>
+        <div class="timeline-item indigo reveal reveal-delay-3">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Current Release</div>
+          <h4>All 10 improvements implemented</h4>
+          <p>Real adherence tracking, granular consent, Study ID + de-identified export, redesigned safety logic, complete multilingual text, local reminders, patient PDF report, and three bug fixes.</p>
+        </div>
+        <div class="timeline-item reveal">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">Upcoming — M.Pharm sessions</div>
+          <h4>Research proposal & study protocol</h4>
+          <p>PMAS to be proposed as M.Pharm Pharmacy Practice dissertation research at RIPER, Anantapur. Concept note prepared for supervisor review.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="badge badge-indigo">Institution</span>
+        <h2 class="mt-2">RIPER — Raghavendra Institute of Pharmaceutical Education and Research</h2>
+        <p>RIPER, Anantapur, Andhra Pradesh — an autonomous institution with a strong Pharmacy Practice department and active ISPOR India Andhra Pradesh Chapter involvement.</p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card reveal">
+          <div class="icon-wrap">🎓</div>
+          <h3>Academic Excellence</h3>
+          <p>Autonomous institution offering M.Pharm in Pharmacy Practice with research-focused culture and exposure to pharmacoeconomics and outcomes research.</p>
+        </div>
+        <div class="feature-card indigo reveal reveal-delay-1">
+          <div class="icon-wrap">🔬</div>
+          <h3>ISPOR India Chapter</h3>
+          <p>Active ISPOR India Andhra Pradesh Chapter involvement under Dr. Y. Padmanabha Reddy, focusing on patient-centered healthcare and outcomes research.</p>
+        </div>
+        <div class="feature-card amber reveal reveal-delay-2">
+          <div class="icon-wrap">🏥</div>
+          <h3>Clinical Access</h3>
+          <p>Pharmacy Practice department with affiliated hospital and community pharmacy sites for patient recruitment and clinical research.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container-narrow">
+      <div class="section-header reveal">
+        <span class="badge badge-teal">Design Principles</span>
+        <h2 class="mt-2">What guides every decision</h2>
+      </div>
+      <div class="reveal">
+        <div class="card mb-3">
+          <h4 class="text-teal">Earn continuity. Don't engineer dependency.</h4>
+          <p class="text-muted text-sm">PMAS should create reasons for patients to stay engaged with their care — never barriers to leaving or seeking a second opinion.</p>
+        </div>
+        <div class="card mb-3">
+          <h4 class="text-teal">Translate understanding, not just labels.</h4>
+          <p class="text-muted text-sm">Multilingual means the counselling explanation changes meaningfully, not just the word "Profile" in five scripts.</p>
+        </div>
+        <div class="card mb-3">
+          <h4 class="text-teal">Escalate, don't diagnose.</h4>
+          <p class="text-muted text-sm">The system recommends professional evaluation and lists symptoms to watch for — it never tells a patient they have an emergency.</p>
+        </div>
+        <div class="card mb-3">
+          <h4 class="text-teal">Offline-first is a feature, not a limitation.</h4>
+          <p class="text-muted text-sm">Local-only storage with no server transmission is the correct architecture for low-connectivity Indian healthcare settings.</p>
+        </div>
+        <div class="card">
+          <h4 class="text-teal">Research instrument, not a product.</h4>
+          <p class="text-muted text-sm">Every feature maps to a research outcome variable. The de-identified export is structured for HEOR analysis, not for monetisation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h4>PMAS</h4>
+        <p>Pharmacist-led, multilingual, offline-first medication adherence support. A research prototype developed under RIPER M.Pharm Pharmacy Practice.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="demo/index.html" target="_blank" rel="noopener">Live Demo</a></li><li><a href="contact.html">Contact</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Research</h5>
+        <ul><li><a href="index.html#research">Study Design</a></li><li><a href="index.html#features">Features</a></li><li><a href="privacy.html">Privacy</a></li><li><a href="terms.html">Terms</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <ul><li><a href="contact.html">Get in touch</a></li><li><a href="https://ispor.org" target="_blank" rel="noopener">ISPOR</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span id="current-year">2025</span> PMAS — Kartik H., RIPER M.Pharm Pharmacy Practice. Research prototype — not for clinical deployment.</p>
+      <div class="footer-social"><a href="contact.html" aria-label="Contact">✉</a><a href="demo/index.html" target="_blank" rel="noopener" aria-label="Demo">▶</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script src="assets/js/animations.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
