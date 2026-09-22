@@ -1,0 +1,27 @@
+Copyright (c) 2026 Kartik H.
+
+All rights reserved.
+
+This source code is made publicly visible for academic review, collaboration,
+and evaluation (including hackathon and grant review).
+
+You may NOT, without prior written permission from the copyright holder:
+
+  - use this software or its content commercially;
+  - redistribute it, in whole or in part;
+  - use the "PMAS" name, branding, or the hexagon-cube logo;
+  - deploy it with real patient data.
+
+Researchers and educators who wish to use or extend this work (for example, for
+replication of the study described in docs/05-heor-research.md) are encouraged
+to contact the author: kartik.h6822@gmail.com
+
+An open-source license (e.g., Apache-2.0 or MIT) may be adopted for defined
+components after the dissertation and any commercialisation decisions are
+complete. Until then, this notice governs.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM THE USE OF THIS SOFTWARE. This software is a
+research prototype and is NOT a medical device; it must not be used for
+diagnosis or clinical decision-making.

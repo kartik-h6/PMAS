@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets — never commit
+.env
+*.pem
+credentials*.json
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Build outputs
+dist/
+build/
+.netlify/
+
+# Local dev databases
+*.sqlite3
+*.db
