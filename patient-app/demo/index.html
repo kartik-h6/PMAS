@@ -455,6 +455,56 @@
 
       <hr class="divider">
 
+      <!-- ── Medication Reminders (PWA notifications) ──────── -->
+      <div class="research-disclaimer">
+        <strong style="color:var(--teal);" data-i18n="reminders_title">🔔 Medication Reminders</strong><br>
+        <span data-i18n="reminders_desc">Turn on reminders to get a notification when a dose is due. Works best when PMAS is installed on your home screen.</span>
+      </div>
+      <div class="field-row">
+        <button class="btn btn-primary mt-1" id="btn-enable-reminders" onclick="enableReminders()" data-i18n="enable_reminders">
+          Enable Reminders
+        </button>
+        <button class="btn btn-ghost mt-1" onclick="testReminder()" data-i18n="test_reminder">
+          Test Reminder (30 s)
+        </button>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ── Account & Cloud Sync (optional) ────────────────── -->
+      <div class="research-disclaimer">
+        <strong style="color:var(--indigo);" data-i18n="sync_title">☁️ Account & Cloud Sync</strong><br>
+        <span data-i18n="sync_desc">Optional. Connect this app to your hospital's PMAS server so your pharmacist can see your progress. Everything works offline without this.</span>
+      </div>
+      <form id="sync-form" onsubmit="return false;" novalidate>
+        <div class="form-group">
+          <label class="field-label" for="sync-url" data-i18n="sync_url">Server Address</label>
+          <input type="url" id="sync-url" placeholder="https://pmas-api.onrender.com" data-i18n-ph="sync_url_ph">
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label class="field-label" for="sync-phone" data-i18n="sync_phone">Phone Number</label>
+            <input type="tel" id="sync-phone" placeholder="10-digit mobile" data-i18n-ph="sync_phone_ph">
+          </div>
+          <div class="form-group">
+            <label class="field-label" for="sync-pass" data-i18n="sync_password">Password</label>
+            <input type="password" id="sync-pass" placeholder="••••••••">
+          </div>
+        </div>
+        <div class="field-row">
+          <button class="btn btn-primary mt-1" onclick="syncLogin()" data-i18n="sync_sign_in">Sign In</button>
+          <button class="btn btn-secondary mt-1" onclick="syncRegister()" data-i18n="sync_register">Create Account</button>
+        </div>
+        <p class="text-muted" id="sync-status" style="font-size:0.78rem;margin:0.5rem 0 0;" data-i18n="sync_offline">
+          Offline mode — data stays on this device
+        </p>
+        <button class="btn btn-ghost mt-1 hidden" id="btn-sync-logout" onclick="syncLogout()" data-i18n="sync_sign_out">
+          Sign Out
+        </button>
+      </form>
+
+      <hr class="divider">
+
       <!-- ── Research Data Export (Study ID + study day) ─ -->
       <div class="research-disclaimer">
         <strong style="color:var(--indigo);" data-i18n="research_export_title">M.Pharm Research Data Export</strong><br>
@@ -547,6 +597,7 @@
 <script src="js/adherence.js"></script>
 <script src="js/reminders.js"></script>
 <script src="js/export.js"></script>
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
 
 <!-- PWA Install Banner -->

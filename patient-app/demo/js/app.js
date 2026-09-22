@@ -711,8 +711,80 @@ function deleteAllData() {
   window.location.reload();
 }
 
+/* ── Account & Cloud Sync (api.js bridge) ───────────────── */
+function updateSyncStatus() {
+  const statusEl = el('sync-status');
+  const logoutBtn = el('btn-sync-logout');
+  if (!statusEl) return;
+  if (API.isAuthenticated()) {
+    statusEl.removeAttribute('data-i18n');
+    statusEl.textContent = tr('sync_signed_in');
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+  } else {
+    statusEl.setAttribute('data-i18n', 'sync_offline');
+    statusEl.textContent = tr('sync_offline');
+    if (logoutBtn) logoutBtn.classList.add('hidden');
+  }
+}
+
+async function syncLogin() {
+  const baseUrl = (el('sync-url').value || '').trim().replace(/\/+$/, '');
+  const phone = el('sync-phone').value.trim();
+  const password = el('sync-pass').value;
+  if (!baseUrl || !phone || !password) {
+    showToast(tr('sync_fill_fields'));
+    return;
+  }
+  try {
+    localStorage.setItem('pmas_api_url', baseUrl);
+    API.init(baseUrl);
+    await API.login(phone, password);
+    el('sync-pass').value = '';
+    await API.syncPending();
+    updateSyncStatus();
+    showToast(tr('sync_signed_in'));
+  } catch (e) {
+    showToast(tr('sync_error') + ' ' + (e.message || ''));
+  }
+}
+
+async function syncRegister() {
+  const baseUrl = (el('sync-url').value || '').trim().replace(/\/+$/, '');
+  const phone = el('sync-phone').value.trim();
+  const password = el('sync-pass').value;
+  if (!baseUrl || !phone || !password) {
+    showToast(tr('sync_fill_fields'));
+    return;
+  }
+  try {
+    localStorage.setItem('pmas_api_url', baseUrl);
+    API.init(baseUrl);
+    const consent = DB.get('consent');
+    await API.register(phone, password, (consent && consent.language) || 'en');
+    el('sync-pass').value = '';
+    await API.syncPending();
+    updateSyncStatus();
+    showToast(tr('sync_signed_in'));
+  } catch (e) {
+    showToast(tr('sync_error') + ' ' + (e.message || ''));
+  }
+}
+
+function syncLogout() {
+  API.logout();
+  updateSyncStatus();
+  showToast(tr('sync_offline'));
+}
+
 /* ── Initialise ──────────────────────────────────────────── */
 window.addEventListener('load', () => {
+  // Cloud sync layer — safe even with no backend configured:
+  // without a base URL every call silently falls back to offline mode.
+  if (typeof API !== 'undefined') {
+    API.init();
+    updateSyncStatus();
+  }
+
   const consent = DB.get('consent');
   if (consent) {
     lang = consent.language || 'en';

@@ -107,26 +107,59 @@ const Reminders = {
     return (h1 * 60 + m1) - (h2 * 60 + m2);
   },
 
-  /* Fire a reminder — toast + browser notification if available */
+  /* Fire a reminder — toast + PWA/service-worker notification if permitted */
   fireReminder(medName, medDose, scheduledTime, slotKey) {
     const message = tr('reminder_due') + ' ' + medName + ' ' + medDose + ' (' + scheduledTime + ')';
 
     // Stage 1: Always show in-app toast
     showToast(message, 5000);
 
-    // Stage 2: Browser notification if permitted
+    // Stage 2: Service-worker notification (required for installed PWAs),
+    // with graceful fallback to the plain Notification constructor.
     if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        const notification = new Notification('PMAS — Medication Reminder', {
-          body: medName + ' ' + medDose + ' — ' + scheduledTime,
-          tag: 'pmas_' + slotKey + '_' + scheduledTime,
-          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230ECDA0"><circle cx="12" cy="12" r="10"/></svg>'
-        });
-        // Auto-close after 30 seconds
-        setTimeout(() => notification.close(), 30000);
-      } catch(e) {
-        // Fallback to toast only
+      const opts = {
+        body: medName + ' ' + medDose + ' — ' + scheduledTime,
+        tag: 'pmas_' + slotKey + '_' + scheduledTime,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230ECDA0"><circle cx="12" cy="12" r="10"/></svg>'
+      };
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.ready
+          .then(reg => reg.showNotification('PMAS — Medication Reminder', opts))
+          .catch(() => { /* fall back below */ });
+      } else {
+        try {
+          const notification = new Notification('PMAS — Medication Reminder', opts);
+          setTimeout(() => notification.close(), 30000);
+        } catch(e) {
+          // Fallback to toast only
+        }
       }
     }
+  },
+
+  /* Fire a demo reminder after a short delay (for the Test button) */
+  scheduleTest(delayMs = 30000) {
+    const now = new Date();
+    now.setTime(now.getTime() + delayMs);
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    showToast(tr('test_reminder_scheduled'), 4000);
+    setTimeout(() => {
+        this.fireReminder(tr('test_reminder_name'), '1 tablet', hh + ':' + mm, 'test');
+    }, delayMs);
   }
 };
+
+/* ── UI hooks (called from the Profile tab) ─────────────── */
+
+async function enableReminders() {
+  const ok = await Reminders.requestPermission();
+  if (ok) {
+    const btn = document.getElementById('btn-enable-reminders');
+    if (btn) btn.textContent = tr('reminder_enabled');
+  }
+}
+
+function testReminder() {
+  Reminders.scheduleTest(30000);
+}
