@@ -110,3 +110,15 @@ async def require_pharmacist_or_admin(
             detail="Pharmacist or admin access required"
         )
     return user
+
+
+async def require_admin(
+    user: User = Depends(get_current_user)
+) -> User:
+    """Allow only the admin role (account governance endpoints)."""
+    if user.role != UserRole.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required"
+        )
+    return user

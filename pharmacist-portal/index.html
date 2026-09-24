@@ -127,21 +127,9 @@ tr:hover td{background:var(--surface2)}
       </div>
       <button type="submit" class="btn btn-primary btn-block">Login</button>
     </form>
-    <p class="text-muted text-sm mt-2" style="margin-top:1rem">
-      Need a pharmacist account? Contact your administrator or use the register form below.
+    <p class="text-muted text-sm" style="margin-top:1rem">
+      Staff accounts are created by the project administrator. Patients register through the patient app.
     </p>
-    <button class="btn btn-ghost btn-block mt-2" onclick="toggleRegister()">Register as Pharmacist</button>
-    <form id="register-form" class="hidden mt-2" onsubmit="register(event)">
-      <div class="form-group">
-        <label class="form-label">Phone Number</label>
-        <input type="tel" id="reg-phone" class="form-input" required pattern="^(\+91\d{10}|\d{10})$" placeholder="10-digit mobile">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" id="reg-password" class="form-input" required minlength="6" placeholder="Min 6 characters">
-      </div>
-      <button type="submit" class="btn btn-secondary btn-block">Register</button>
-    </form>
   </div>
 </div>
 
@@ -305,6 +293,10 @@ async function login(e) {
         password: document.getElementById('login-password').value
       }
     });
+    if (res.role !== 'pharmacist' && res.role !== 'admin') {
+      showToast('This portal is for staff accounts. Patients: please use the patient app.');
+      return;
+    }
     token = res.access_token;
     userRole = res.role;
     localStorage.setItem('pmas_pharmacist_token', token);
@@ -315,36 +307,11 @@ async function login(e) {
   }
 }
 
-async function register(e) {
-  e.preventDefault();
-  try {
-    const res = await apiCall('/api/v1/auth/register', {
-      method: 'POST',
-      body: {
-        phone_number: document.getElementById('reg-phone').value,
-        password: document.getElementById('reg-password').value,
-        role: 'pharmacist'
-      }
-    });
-    token = res.access_token;
-    userRole = res.role;
-    localStorage.setItem('pmas_pharmacist_token', token);
-    localStorage.setItem('pmas_user_role', userRole);
-    showDashboard();
-  } catch (err) {
-    showToast('Registration failed: ' + err.message);
-  }
-}
-
 function logout() {
   token = null;
   localStorage.removeItem('pmas_pharmacist_token');
   localStorage.removeItem('pmas_user_role');
   location.reload();
-}
-
-function toggleRegister() {
-  document.getElementById('register-form').classList.toggle('hidden');
 }
 
 // ─── Dashboard ───────────────────────────────────────────────
@@ -418,7 +385,7 @@ function switchTab(tabId, btn) {
 }
 
 // ─── Init ────────────────────────────────────────────────────
-if (token && userRole) {
+if (token && (userRole === 'pharmacist' || userRole === 'admin')) {
   showDashboard();
 }
 </script>

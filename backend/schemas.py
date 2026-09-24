@@ -11,9 +11,10 @@ from uuid import UUID
 # ─── Auth Schemas ───────────────────────────────────────────
 
 class UserRegister(BaseModel):
+    """Self-registration is patient-only. Staff (pharmacist/admin) accounts
+    are created by an administrator via the admin endpoints."""
     phone_number: str = Field(..., pattern=r"^(\+91\d{10}|\d{10})$")
     password: str = Field(..., min_length=6, max_length=100)
-    role: str = Field(default="patient")
     preferred_language: str = Field(default="en", max_length=10)
 
 
@@ -27,6 +28,29 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     role: str
     user_id: str
+
+
+# ─── Admin Schemas (account governance) ────────────────────
+
+class AdminUserResponse(BaseModel):
+    user_id: str
+    phone_number: str
+    role: str
+    is_active: bool
+    preferred_language: str
+    created_at: Optional[datetime] = None
+
+
+class AdminUserCreate(BaseModel):
+    phone_number: str = Field(..., pattern=r"^(\+91\d{10}|\d{10})$")
+    password: str = Field(..., min_length=8, max_length=100)
+    role: str = Field(..., pattern=r"^(pharmacist|admin)$")
+    preferred_language: str = Field(default="en", max_length=10)
+
+
+class AdminUserUpdate(BaseModel):
+    role: Optional[str] = Field(None, pattern=r"^(patient|pharmacist|admin)$")
+    is_active: Optional[bool] = None
 
 
 # ─── Profile Schemas ────────────────────────────────────────

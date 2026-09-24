@@ -4,12 +4,19 @@ All notable changes to PMAS are documented here. The project uses a single produ
 
 ## [Unreleased]
 
+### Security
+- **Self-registration is now patient-only.** The register endpoint no longer accepts a client-supplied role, closing a privilege-escalation path (previously anyone could POST `role: "pharmacist"` or `"admin"`).
+- New admin account-governance API — list users, create staff accounts, change roles, suspend/reactivate — administrator-only and audit-logged. Admins cannot change their own role or status.
+- First-run administrator bootstrap via `ADMIN_PHONE` / `ADMIN_PASSWORD` environment variables.
+- Pharmacist portal: staff self-registration removed; patient accounts are created in the patient app.
+
 ### Changed
 - Project reframed as an **independent telepharmacy research project by Kartik H.** — institutional affiliations, dissertation framing and third-party references removed across docs, marketing pages, consent screens and app strings (all 5 languages).
 - Product model formalised in the PRD: the 90-day telepharmacy care loop for rural and remote chronic-care patients.
 
 ### Added
 - Product Requirements Document: `docs/00-product-requirements.md` (problem statement, personas, scope, functional & non-functional requirements, success metrics, risks).
+- Architecture Decision Record: `docs/adr/ADR-001` — clinical scope and diagnostic boundary (why PMAS excludes diagnostic/prediction features; the AI boundary).
 - This repository: consolidated project structure (`patient-app/`, `backend/`, `pharmacist-portal/`, `docs/`).
 - Complete documentation set: vision, architecture, data model, security/DPDP mapping, HEOR research design, multilingual content model, AI integration strategy, roadmap, deployment, funding & business, AI-usage disclosure.
 - API sync layer (`demo/js/api.js`) added to the patient app source (wiring into the app shell is next — see roadmap).

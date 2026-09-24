@@ -65,6 +65,7 @@ Every aspect of the project is documented in [`docs/`](docs/):
 | Document | Covers |
 |---|---|
 | [00 — Product Requirements](docs/00-product-requirements.md) | PRD v1.0 — problem statement, users, product model, scope, requirements, metrics, risks |
+| [ADR-001 — Clinical Scope & Diagnostic Boundary](docs/adr/ADR-001-clinical-scope-and-diagnostic-boundary.md) | Decision record: why PMAS excludes diagnostic/prediction features; the AI boundary |
 | [01 — Vision & Problem](docs/01-vision-and-problem.md) | Origin story, adherence problem, thesis argument, target users, competitive landscape |
 | [02 — Architecture](docs/02-architecture.md) | System design, dual-vault, offline-first model, API layer, integration principles |
 | [03 — Data Model](docs/03-data-model.md) | Database schema, data dictionary, de-identification strategy, health data contract |

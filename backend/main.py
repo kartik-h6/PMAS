@@ -5,7 +5,7 @@ Dual-Vault architecture: Vault A (PII) | Vault B (Clinical & HEOR)
 """
 import os
 from datetime import date, datetime, timezone
-from uuid import uuid4
+from uuid import uuid4, UUID
 from typing import List, Optional
 
 from fastapi import FastAPI, Depends, HTTPException, status, Query
@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db, Base, engine, User, UserRole, PatientProfile, MedicationPlan, AdherenceRecord, DoseStatus, SymptomTelemetry, Appointment, SecurityAuditTrail, StudyMetadata
+from database import get_db, Base, engine, async_session, User, UserRole, PatientProfile, MedicationPlan, AdherenceRecord, DoseStatus, SymptomTelemetry, Appointment, SecurityAuditTrail, StudyMetadata
 from schemas import (
     UserRegister, UserLogin, TokenResponse,
     PatientProfileCreate, PatientProfileResponse,
@@ -21,11 +21,12 @@ from schemas import (
     AdherenceRecordCreate, AdherenceRecordResponse, AdherenceSummary,
     SymptomLogCreate, SymptomLogResponse, SymptomResponse,
     AppointmentCreate, AppointmentResponse,
-    PatientEnrollment, PharmacistDashboard
+    PatientEnrollment, PharmacistDashboard,
+    AdminUserCreate, AdminUserUpdate, AdminUserResponse
 )
 from auth import (
     hash_password, verify_password, create_access_token,
-    get_current_user, require_role, require_pharmacist_or_admin
+    get_current_user, require_role, require_pharmacist_or_admin, require_admin
 )
 
 app = FastAPI(
@@ -61,6 +62,21 @@ async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    # First-run admin bootstrap: if no admin account exists and credentials
+    # are provided via environment, create the initial administrator.
+    admin_phone = os.getenv("ADMIN_PHONE")
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    if admin_phone and admin_password:
+        async with async_session() as db:
+            result = await db.execute(select(User).where(User.role == UserRole.admin))
+            if not result.scalars().first():
+                db.add(User(
+                    phone_number=admin_phone,
+                    password_hash=hash_password(admin_password),
+                    role=UserRole.admin
+                ))
+                await db.commit()
+
 
 # ═══════════════════════════════════════════════════════════════
 # AUTHENTICATION
@@ -68,7 +84,11 @@ async def startup():
 
 @app.post("/api/v1/auth/register", response_model=TokenResponse)
 async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
-    """Register a new patient or pharmacist."""
+    """Register a new patient account.
+
+    Self-registration is patient-only; the role field is not accepted.
+    Staff (pharmacist/admin) accounts are created by an administrator.
+    """
     existing = await db.execute(select(User).where(User.phone_number == user_data.phone_number))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Phone number already registered")
@@ -76,7 +96,7 @@ async def register(user_data: UserRegister, db: AsyncSession = Depends(get_db)):
     user = User(
         phone_number=user_data.phone_number,
         password_hash=hash_password(user_data.password),
-        role=UserRole(user_data.role),
+        role=UserRole.patient,
         preferred_language=user_data.preferred_language
     )
     db.add(user)
@@ -600,6 +620,115 @@ async def research_export(
             "raw_dates_in_export": False
         }
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# ADMIN — ACCOUNT GOVERNANCE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/admin/users", response_model=List[AdminUserResponse])
+async def admin_list_users(
+    role: Optional[str] = Query(None, pattern=r"^(patient|pharmacist|admin)$"),
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """List user accounts. Administrator only."""
+    stmt = select(User).order_by(User.created_at.desc()).limit(500)
+    if role:
+        stmt = stmt.where(User.role == UserRole(role))
+    result = await db.execute(stmt)
+    return [
+        AdminUserResponse(
+            user_id=str(u.id),
+            phone_number=u.phone_number,
+            role=u.role.value,
+            is_active=u.is_active,
+            preferred_language=u.preferred_language,
+            created_at=u.created_at
+        ) for u in result.scalars().all()
+    ]
+
+
+@app.post("/api/v1/admin/users", response_model=AdminUserResponse, status_code=201)
+async def admin_create_user(
+    data: AdminUserCreate,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """Create a staff (pharmacist/admin) account. Administrator only; audit-logged."""
+    existing = await db.execute(select(User).where(User.phone_number == data.phone_number))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Phone number already registered")
+
+    user = User(
+        phone_number=data.phone_number,
+        password_hash=hash_password(data.password),
+        role=UserRole(data.role),
+        preferred_language=data.preferred_language
+    )
+    db.add(user)
+    await db.flush()
+
+    db.add(SecurityAuditTrail(
+        performed_by=admin.id,
+        action="ADMIN_CREATE_USER",
+        target_resource=f"users:{user.id} role={user.role.value}"
+    ))
+
+    return AdminUserResponse(
+        user_id=str(user.id),
+        phone_number=user.phone_number,
+        role=user.role.value,
+        is_active=user.is_active,
+        preferred_language=user.preferred_language,
+        created_at=user.created_at
+    )
+
+
+@app.patch("/api/v1/admin/users/{user_id}", response_model=AdminUserResponse)
+async def admin_update_user(
+    user_id: UUID,
+    data: AdminUserUpdate,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db)
+):
+    """Change a user's role or suspend/reactivate the account.
+
+    Administrator only; audit-logged. An admin cannot change their own
+    role or status, so the governance account can never lock itself out.
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.id == admin.id:
+        raise HTTPException(status_code=400, detail="Admins cannot change their own role or status")
+
+    changes = []
+    if data.role is not None and data.role != user.role.value:
+        user.role = UserRole(data.role)
+        changes.append(f"role={data.role}")
+    if data.is_active is not None and data.is_active != user.is_active:
+        user.is_active = data.is_active
+        changes.append("suspended" if not data.is_active else "reactivated")
+    if not changes:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+
+    await db.flush()
+    db.add(SecurityAuditTrail(
+        performed_by=admin.id,
+        action="ADMIN_UPDATE_USER",
+        target_resource=f"users:{user.id} ({', '.join(changes)})"
+    ))
+
+    return AdminUserResponse(
+        user_id=str(user.id),
+        phone_number=user.phone_number,
+        role=user.role.value,
+        is_active=user.is_active,
+        preferred_language=user.preferred_language,
+        created_at=user.created_at
+    )
 
 
 # ═══════════════════════════════════════════════════════════════
