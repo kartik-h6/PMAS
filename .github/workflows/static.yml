@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: 'patient app'
+          path: 'patient-app'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
