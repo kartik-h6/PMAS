@@ -115,6 +115,20 @@
       }
     }
     </script>
+<style>
+/* Contact page — structured inquiry composer + quick-start chips */
+.cta-chips { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-bottom:1.25rem; }
+.cta-chips-label { font-size:0.8rem; color:var(--muted); margin-right:0.25rem; }
+.cta-chip { background:var(--surface); border:1px solid var(--border, rgba(138,155,190,0.25)); color:var(--text); border-radius:999px; padding:0.45rem 0.9rem; font-size:0.8rem; font-weight:500; cursor:pointer; transition:border-color .2s ease, color .2s ease, transform .2s ease, background .2s ease; }
+.cta-chip:hover { border-color:var(--teal); color:var(--teal); transform:translateY(-1px); }
+.cta-chip.active { border-color:var(--teal); color:var(--teal); background:rgba(14,205,160,0.08); }
+.req { color:var(--amber); }
+.pmas-toast { position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:100; background:var(--surface); border:1px solid var(--border, rgba(138,155,190,0.25)); border-radius:var(--radius, 12px); padding:0.7rem 1.1rem; font-size:0.85rem; box-shadow:0 8px 24px rgba(0,0,0,0.4); opacity:0; transition:opacity .25s; pointer-events:none; max-width:90vw; }
+.pmas-toast.show { opacity:1; }
+.focus-list { list-style:none; padding:0; margin:0.5rem 0 0; }
+.focus-list li { padding:0.22rem 0 0.22rem 1.15rem; position:relative; color:var(--muted); }
+.focus-list li::before { content:"→"; position:absolute; left:0; color:var(--teal); }
+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
@@ -141,70 +155,102 @@
     <div class="hero-bg"></div>
     <div class="container relative z-1">
       <span class="badge badge-teal">Get in Touch</span>
-      <h1 class="mt-2">Let's talk about adherence.</h1>
-      <p>Whether you're a researcher or academic, a fellow student, a healthcare professional, or a conference contact — I'd like to hear from you.</p>
+      <h1 class="mt-2">Let's talk about medication adherence.</h1>
+      <p>Whether you're a pharmacist, healthcare professional, researcher, student, institution, or someone interested in the PMAS project — I'd like to hear from you.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
       <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-xl);">
-        <!-- Contact form -->
+        <!-- ═══ Contact form ═══ -->
         <div class="reveal">
+          <div class="cta-chips" role="group" aria-label="Quick start">
+            <span class="cta-chips-label">Quick start:</span>
+            <button type="button" class="cta-chip" data-topic="Demonstration / Presentation" data-msg="Hi Kartik, I'd like to request a demonstration of PMAS. I'm particularly interested in ">▶ Request a demo</button>
+            <button type="button" class="cta-chip" data-topic="Research Collaboration" data-msg="Hi Kartik, I'd like to explore a research collaboration with PMAS. My area of work is ">🔬 Research collaboration</button>
+            <button type="button" class="cta-chip" data-topic="Telepharmacy / Continuity of Care" data-msg="Hi Kartik, I'm interested in the telepharmacy model of PMAS for our setting — ">🏥 Telepharmacy / pilot</button>
+            <button type="button" class="cta-chip" data-topic="General Inquiry" data-msg="Hi Kartik, I have a question about PMAS: ">✉ Ask a question</button>
+          </div>
           <h2 class="mb-3">Send a message</h2>
           <form id="contact-form" novalidate>
             <div class="form-group">
-              <label class="form-label" for="name">Your Name</label>
+              <label class="form-label" for="name">Your Name <span class="req">*</span></label>
               <input type="text" id="name" class="form-input" required placeholder="Full name">
             </div>
             <div class="form-group">
-              <label class="form-label" for="email">Email</label>
+              <label class="form-label" for="email">Email <span class="req">*</span></label>
               <input type="email" id="email" class="form-input" required placeholder="you@example.com">
             </div>
             <div class="form-group">
-              <label class="form-label" for="role">I am a...</label>
-              <select id="role" class="form-select">
+              <label class="form-label" for="role">I am a... <span class="req">*</span></label>
+              <select id="role" class="form-select" required>
                 <option value="">Select</option>
-                <option value="supervisor">Researcher / Academic</option>
-                <option value="student">Student / Researcher</option>
-                <option value="clinician">Healthcare Professional</option>
-                <option value="conference">Conference Contact</option>
-                <option value="other">Other</option>
+                <option>Pharmacist</option>
+                <option>Healthcare Professional</option>
+                <option>Researcher / Academic</option>
+                <option>Pharmacy Student</option>
+                <option>Healthcare Institution</option>
+                <option>Technology / AI Collaborator</option>
+                <option>Conference / Academic Contact</option>
+                <option>Other</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="message">Message</label>
-              <textarea id="message" class="form-textarea" required placeholder="Your message..."></textarea>
+              <label class="form-label" for="topic">What would you like to discuss?</label>
+              <select id="topic" class="form-select">
+                <option value="">Select a topic (optional)</option>
+                <option>PMAS Research</option>
+                <option>Pharmacist Portal</option>
+                <option>Telepharmacy / Continuity of Care</option>
+                <option>Medication Adherence</option>
+                <option>Multilingual Counselling</option>
+                <option>Digital Health / AI</option>
+                <option>Research Collaboration</option>
+                <option>Demonstration / Presentation</option>
+                <option>General Inquiry</option>
+              </select>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Send Message</button>
-            <p class="text-muted text-xs mt-2">This form is front-end only for the prototype. For direct communication, please use the email below.</p>
+            <div class="form-group">
+              <label class="form-label" for="org">Organization / Institution</label>
+              <input type="text" id="org" class="form-input" placeholder="Optional">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="message">Message <span class="req">*</span></label>
+              <textarea id="message" class="form-textarea" required placeholder="Tell me what you'd like to discuss..."></textarea>
+            </div>
+            <button type="submit" id="btn-whatsapp" class="btn btn-primary btn-block">✆ Send via WhatsApp</button>
+            <button type="button" id="btn-email" class="btn btn-ghost btn-block" style="margin-top:0.5rem;">✉ Send by Email</button>
+            <p class="text-muted text-xs mt-2">The message is composed on your device — nothing is sent until you confirm it in WhatsApp or your email app.</p>
+            <div class="card mt-3" style="border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.06);">
+              <p class="text-sm"><strong>⚠ No patient data, please.</strong> Do not submit patient-identifiable information, medical records, prescriptions, or other sensitive health information through this form. For research or collaboration discussions, please describe the topic without identifying individual patients.</p>
+            </div>
           </form>
         </div>
 
-        <!-- Contact info -->
+        <!-- ═══ Connect with PMAS ═══ -->
         <div class="reveal reveal-delay-1">
-          <h2 class="mb-3">Direct contact</h2>
+          <h2 class="mb-3">Connect with PMAS</h2>
           <div class="card card-indigo mb-3">
-            <h4 class="text-teal">Kartik H.</h4>
-            <p class="text-muted text-sm">Pharmacist — B.Pharm</p>
+            <h4 class="text-teal">Kartik H</h4>
+            <p class="text-muted text-sm">B.Pharm — Pharmacist</p>
             <p class="text-muted text-sm">Independent Digital Health Researcher</p>
             <p class="text-muted text-sm">Karnataka, India</p>
           </div>
           <div class="card mb-3">
-            <h4 class="mb-1">Research Interests</h4>
-            <div class="flex flex-wrap gap-1 mt-2">
-              <span class="badge badge-teal">Pharmacy Practice</span>
-              <span class="badge badge-indigo">HEOR</span>
-              <span class="badge badge-amber">Digital Health</span>
-              <span class="badge badge-teal">Medication Adherence</span>
-              <span class="badge badge-indigo">Healthcare Communication</span>
-              <span class="badge badge-amber">Pharmacovigilance</span>
-              <span class="badge badge-teal">Real-World Evidence</span>
-            </div>
+            <h4 class="mb-1">Current focus</h4>
+            <ul class="focus-list text-sm">
+              <li>Medication adherence</li>
+              <li>Pharmacist-led counselling</li>
+              <li>Telepharmacy</li>
+              <li>Multilingual healthcare communication</li>
+              <li>Digital health research</li>
+              <li>Continuity of care</li>
+            </ul>
           </div>
           <div class="card">
-            <h4 class="mb-1">Context</h4>
-            <p class="text-muted text-sm">PMAS is an independent research prototype by Kartik H. The vernacular communication direction was shaped at the 5th International HEOR Conference, ISPOR India Andhra Pradesh Chapter.</p>
+            <h4 class="mb-1">Research prototype</h4>
+            <p class="text-muted text-sm">PMAS is an independent research prototype exploring pharmacist-led medication and adherence support. It is not currently intended for clinical deployment.</p>
           </div>
         </div>
       </div>
@@ -243,5 +289,79 @@
 <script src="assets/js/navigation.js"></script>
 <script src="assets/js/animations.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+/* ═══ PMAS contact — structured inquiry composer ═══
+   Both buttons build the same structured message locally; nothing leaves
+   the device until the user confirms in WhatsApp or their email app. */
+(function () {
+  var WHATSAPP_NUMBER = '919480727214';
+  var EMAIL_TO = 'kartik.h6822@gmail.com';
+
+  function toast(msg) {
+    var t = document.getElementById('pmas-toast');
+    if (!t) { alert(msg); return; }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove('show'); }, 3200);
+  }
+
+  function buildInquiry() {
+    var val = function (id) { return document.getElementById(id).value.trim(); };
+    var name = val('name'), email = val('email'), message = val('message');
+    var role = document.getElementById('role').value;
+    var topic = document.getElementById('topic').value;
+    var org = val('org');
+    if (!name) { toast('Please enter your name.'); return null; }
+    if (!email) { toast('Please enter your email address.'); return null; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { toast('Please enter a valid email address.'); return null; }
+    if (!role) { toast('Please select who you are.'); return null; }
+    if (!message) { toast('Please write a message.'); return null; }
+    var lines = ['New PMAS Inquiry', '',
+      'Name: ' + name,
+      'Email: ' + email,
+      'Role: ' + role];
+    if (topic) lines.push('Topic: ' + topic);
+    if (org) lines.push('Organization: ' + org);
+    lines.push('', 'Message:', message, '', 'Sent via PMAS contact page');
+    return { text: lines.join('\n'), subject: 'PMAS inquiry — ' + (topic || role) };
+  }
+
+  function sendEmail(m) {
+    window.location.href = 'mailto:' + EMAIL_TO +
+      '?subject=' + encodeURIComponent(m.subject) +
+      '&body=' + encodeURIComponent(m.text);
+  }
+
+  document.getElementById('contact-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var m = buildInquiry();
+    if (!m) return;
+    window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(m.text), '_blank', 'noopener');
+  });
+
+  document.getElementById('btn-email').addEventListener('click', function () {
+    var m = buildInquiry();
+    if (m) sendEmail(m);
+  });
+
+  /* Quick-start chips: prefill topic + message starter, focus the form */
+  Array.prototype.forEach.call(document.querySelectorAll('.cta-chip'), function (chip) {
+    chip.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.cta-chip'), function (c) { c.classList.remove('active'); });
+      chip.classList.add('active');
+      var topicSel = document.getElementById('topic');
+      var opt = Array.prototype.find.call(topicSel.options, function (o) { return o.text === chip.getAttribute('data-topic'); });
+      if (opt) topicSel.value = opt.value || opt.text;
+      var msg = document.getElementById('message');
+      if (!msg.value.trim()) msg.value = chip.getAttribute('data-msg');
+      document.getElementById('contact-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var name = document.getElementById('name');
+      (name.value.trim() ? msg : name).focus();
+    });
+  });
+})();
+</script>
+<div class="pmas-toast" id="pmas-toast" role="status" aria-live="polite"></div>
 </body>
 </html>
