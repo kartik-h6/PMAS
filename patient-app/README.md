@@ -2,7 +2,7 @@
 
 **Pharmacist-led, Multilingual, Offline-first Medication & Adherence Support**
 
-An independent research prototype developed by Kartik H., pharmacist.
+An independent research prototype developed by Kartik H, pharmacist.
 
 ## Project Structure
 
@@ -93,7 +93,7 @@ pmas-platform/
 
 ## Author
 
-**Kartik H.** — B.Pharm (RGUHS), independent digital health researcher
+**Kartik H** — B.Pharm (RGUHS), independent digital health researcher
 Founder, TechStudyHubCore
 
 ## License

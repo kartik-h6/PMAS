@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <em>Independent project by Kartik H., pharmacist — telepharmacy for rural & remote chronic care. No institutional affiliation.</em>
+  <em>Independent project by Kartik H, pharmacist — telepharmacy for rural & remote chronic care. No institutional affiliation.</em>
 </p>
 
 ---
@@ -106,7 +106,7 @@ See [docs/09-deployment.md](docs/09-deployment.md) for the full cloud deployment
 
 ## Author
 
-**Kartik H.** — B.Pharm, pharmacist and independent researcher. All platform
+**Kartik H** — B.Pharm, pharmacist and independent researcher. All platform
 conception, clinical reasoning, and validation decisions are the author's.
 
 ## AI usage disclosure
@@ -115,4 +115,4 @@ Parts of this codebase and documentation were developed with AI assistance (prom
 
 ## License
 
-© 2026 Kartik H. All rights reserved. Source is visible for academic review and collaboration; commercial use requires written permission from the author. An open-source license may be adopted later (see [LICENSE](LICENSE)).
+© 2026 Kartik H — all rights reserved. Source is visible for academic review and collaboration; commercial use requires written permission from the author. An open-source license may be adopted later (see [LICENSE](LICENSE)).

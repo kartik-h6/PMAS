@@ -1,7 +1,7 @@
 # PMAS
 
 > Pharmacist-led, multilingual, offline-first medication adherence support prototype.
-> Developed by Kartik H. as an independent telepharmacy research project.
+> Developed by Kartik H as an independent telepharmacy research project.
 
 ## What this is
 
@@ -10,7 +10,7 @@ PMAS is a browser-based research prototype that bridges the healthcare comprehen
 ## Key details
 
 - **Version:** 1.1
-- **Author:** Kartik H. — B.Pharm (RGUHS), independent digital health researcher
+- **Author:** Kartik H — B.Pharm (RGUHS), independent digital health researcher
 - **Status:** Independent project — no institutional affiliation
 - **Research context:** 5th International HEOR Conference, ISPOR India Andhra Pradesh Chapter
 - **Direction:** Vernacular communication focus shaped at the ISPOR India HEOR conference

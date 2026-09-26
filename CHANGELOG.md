@@ -11,7 +11,7 @@ All notable changes to PMAS are documented here. The project uses a single produ
 - Pharmacist portal: staff self-registration removed; patient accounts are created in the patient app.
 
 ### Changed
-- Project reframed as an **independent telepharmacy research project by Kartik H.** — institutional affiliations, dissertation framing and third-party references removed across docs, marketing pages, consent screens and app strings (all 5 languages).
+- Project reframed as an **independent telepharmacy research project by Kartik H** — institutional affiliations, dissertation framing and third-party references removed across docs, marketing pages, consent screens and app strings (all 5 languages).
 - Product model formalised in the PRD: the 90-day telepharmacy care loop for rural and remote chronic-care patients.
 
 ### Added
