@@ -248,9 +248,9 @@ pre code { background: none; padding: 0; }
   flex-wrap: wrap; gap: var(--space-sm);
 }
 .footer-bottom p { color: var(--muted-dark); font-size: 0.8rem; margin: 0; }
-.footer-social { display: flex; gap: var(--space-sm); }
+.footer-social { display: flex; gap: var(--space-md); }
 .footer-social a {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px; font-size: 1.05rem; line-height: 1;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   color: var(--muted); transition: all var(--duration) var(--ease);
@@ -359,5 +359,3 @@ pre code { background: none; padding: 0; }
 h1, h2, h3, h4, h5, h6, p, li { overflow-wrap: break-word; }
 .nav, .nav-brand, .nav-links { min-width: 0; }
 
-/* Footer social icons: SVG marks */
-.footer-social a svg { width: 16px; height: 16px; fill: currentColor; display: block; }
