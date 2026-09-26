@@ -5,23 +5,23 @@
    ═══════════════════════════════════════════════════════════════ */
 const CACHE_NAME = 'pmas-platform';
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/about.html',
-  '/contact.html',
-  '/privacy.html',
-  '/terms.html',
-  '/404.html',
-  '/assets/css/style.css',
-  '/assets/css/components.css',
-  '/assets/css/utilities.css',
-  '/assets/css/animations.css',
-  '/assets/js/main.js',
-  '/assets/js/navigation.js',
-  '/assets/js/theme.js',
-  '/assets/js/animations.js',
-  '/assets/images/favicon/favicon.png',
-  '/manifest.json'
+  './',
+  './/index.html',
+  './/about.html',
+  './/contact.html',
+  './/privacy.html',
+  './/terms.html',
+  './/404.html',
+  './/assets/css/style.css',
+  './/assets/css/components.css',
+  './/assets/css/utilities.css',
+  './/assets/css/animations.css',
+  './/assets/js/main.js',
+  './/assets/js/navigation.js',
+  './/assets/js/theme.js',
+  './/assets/js/animations.js',
+  './/assets/images/favicon/favicon.png',
+  './/manifest.json'
 ];
 
 /* ── Install: pre-cache app shell ─────────────────────────── */
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
           .catch(() => {
             // Offline fallback — serve 404 page for navigations
             if (event.request.mode === 'navigate') {
-              return caches.match('/404.html');
+              return caches.match('./404.html');
             }
           });
       })

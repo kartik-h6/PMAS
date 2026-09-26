@@ -35,12 +35,12 @@ Pure HTML, CSS, JavaScript. No frameworks, no build tools, no backend. Offline-f
 
 ## Important pages
 
-- [Landing page](/index.html)
-- [About the project](/about.html)
-- [Live interactive demo](/demo/index.html)
-- [Privacy policy](/privacy.html)
-- [Terms of use](/terms.html)
-- [Contact](/contact.html)
+- [Landing page](https://kartik-h6.github.io/PMAS/index.html)
+- [About the project](https://kartik-h6.github.io/PMAS/about.html)
+- [Live interactive demo](https://kartik-h6.github.io/PMAS/demo/index.html)
+- [Privacy policy](https://kartik-h6.github.io/PMAS/privacy.html)
+- [Terms of use](https://kartik-h6.github.io/PMAS/terms.html)
+- [Contact](https://kartik-h6.github.io/PMAS/contact.html)
 
 ## Design principles
 

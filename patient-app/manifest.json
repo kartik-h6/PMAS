@@ -7,8 +7,8 @@
   "background_color": "#0B1120",
   "display": "standalone",
   "orientation": "portrait",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "lang": "en",
   "categories": [
     "health",
@@ -18,19 +18,19 @@
   "author": "Kartik H. \u2014 Pharmacist",
   "icons": [
     {
-      "src": "/assets/images/favicon/favicon.png",
+      "src": "assets/images/favicon/favicon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/images/favicon/favicon.png",
+      "src": "assets/images/favicon/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/assets/images/favicon/favicon.png",
+      "src": "assets/images/favicon/favicon.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"
