@@ -495,3 +495,18 @@ hr.divider  { border: none; border-top: 1px solid var(--border); margin: 1rem 0;
   .patient-report .report-close, .patient-report .report-print { display: none; }
   body { background: #fff; }
 }
+
+/* ─── BACK-TO-WEBSITE + DEMO FOOTER (2026-09-26) ──────────────── */
+header { flex-wrap: wrap; row-gap: 0.4rem; }
+.back-to-site {
+  font-size: 0.68rem; text-decoration: none; color: var(--text);
+  border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px;
+  white-space: nowrap; transition: border-color .2s ease, color .2s ease;
+}
+.back-to-site:hover { border-color: var(--teal); color: var(--teal); }
+.demo-footer {
+  padding: 1rem; text-align: center; font-size: 0.72rem;
+  color: var(--muted); border-top: 1px solid var(--border); margin-top: 2rem;
+}
+.demo-footer a { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--muted); }
+.demo-footer a:hover { color: var(--teal); border-bottom-color: var(--teal); }

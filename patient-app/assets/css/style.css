@@ -336,3 +336,28 @@ pre code { background: none; padding: 0; }
 .page-header .hero-bg { position: absolute; }
 .page-header h1 { margin-bottom: var(--space-sm); }
 .page-header p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+/* ─── MOBILE POLISH + ACCESSIBILITY (2026-09-26) ──────────────── */
+/* Skip link: hidden off-screen, appears on keyboard focus only */
+.skip-link {
+  position: absolute; top: -48px; left: var(--space-sm);
+  z-index: 2000; background: var(--teal); color: #06251d;
+  padding: 0.5rem 1rem; border-radius: var(--radius);
+  font-weight: 600; text-decoration: none;
+  transition: top 0.2s var(--ease);
+}
+.skip-link:focus { top: var(--space-sm); }
+
+/* Responsive two-column layout (replaces hardcoded inline grids) */
+.split-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl); align-items: start;
+}
+@media (max-width: 900px) { .split-grid { grid-template-columns: 1fr; } }
+
+/* Long-word safety on narrow screens */
+h1, h2, h3, h4, h5, h6, p, li { overflow-wrap: break-word; }
+.nav, .nav-brand, .nav-links { min-width: 0; }
+
+/* Footer social icons: SVG marks */
+.footer-social a svg { width: 16px; height: 16px; fill: currentColor; display: block; }
