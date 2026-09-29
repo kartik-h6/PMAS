@@ -37,6 +37,9 @@ const DB = {
       'consent', 'adherence', 'study_meta', 'reminder_state'
     ];
     keys.forEach(k => localStorage.removeItem(this.PREFIX + k));
+    // Adherence keeps an in-memory cache (see below) — drop it so a
+    // cleared device doesn't serve stale dose history.
+    if (typeof Adherence !== 'undefined') Adherence._invalidate();
   }
 };
 
@@ -72,7 +75,7 @@ const StudyID = {
 
   setBaseline(dateStr) {
     const meta = this.get();
-    meta.baseline_date = dateStr || new Date().toISOString().split('T')[0];
+    meta.baseline_date = dateStr || todayStr();
     DB.set('study_meta', meta);
   },
 
@@ -83,7 +86,7 @@ const StudyID = {
     const meta = this.get();
     if (!meta.baseline_date) return 0;
     const baseline = new Date(meta.baseline_date + 'T00:00:00');
-    const today = new Date(new Date().toISOString().split('T')[0] + 'T00:00:00');
+    const today = new Date(todayStr() + 'T00:00:00');
     const diffMs = today - baseline;
     return Math.floor(diffMs / 86400000);
   },
@@ -102,10 +105,29 @@ const StudyID = {
 /* Adherence records are stored separately from medications.
    Each record: { id, med_id, date, slot, status, recorded_ts }
    slot: 'morning' | 'afternoon' | 'night'
-   status: 'taken' | 'delayed' | 'missed' */
+   status: 'taken' | 'delayed' | 'missed'
+
+   Performance: the parsed history is cached in memory and indexed by
+   `med_id|date|slot`. Previously every getStatus() call re-parsed the
+   entire localStorage history — O(n) JSON.parse per lookup, several
+   lookups per dose slot per render. After a year of 3 meds × 3 slots
+   that was thousands of records re-parsed dozens of times per screen. */
 const Adherence = {
+  _cache: null,
+  _index: null,
+
   getAll() {
-    return DB.get('adherence') || [];
+    if (this._cache === null) {
+      this._cache = DB.get('adherence') || [];
+      this._index = new Map();
+      this._cache.forEach(r => this._index.set(r.med_id + '|' + r.date + '|' + r.slot, r));
+    }
+    return this._cache;
+  },
+
+  _invalidate() {
+    this._cache = null;
+    this._index = null;
   },
 
   getByDate(dateStr) {
@@ -118,10 +140,7 @@ const Adherence = {
 
   record(medId, date, slot, status) {
     const records = this.getAll();
-    // Find existing record for this med+date+slot
-    const idx = records.findIndex(
-      r => r.med_id === medId && r.date === date && r.slot === slot
-    );
+    const key = medId + '|' + date + '|' + slot;
     const entry = {
       med_id: medId,
       date: date,
@@ -129,25 +148,26 @@ const Adherence = {
       status: status,
       recorded_ts: new Date().toISOString()
     };
-    if (idx >= 0) {
-      records[idx] = entry;
+    const existing = this._index.get(key);
+    if (existing) {
+      // Preserve sync bookkeeping fields (e.g. synced_status) on update
+      Object.assign(existing, entry);
     } else {
       records.push(entry);
+      this._index.set(key, entry);
     }
     DB.set('adherence', records);
   },
 
   getStatus(medId, date, slot) {
-    const records = this.getAll();
-    const found = records.find(
-      r => r.med_id === medId && r.date === date && r.slot === slot
-    );
+    this.getAll();  // ensure loaded
+    const found = this._index.get(medId + '|' + date + '|' + slot);
     return found ? found.status : null;
   },
 
   /* Calculate today's adherence percentage */
   getTodayStats() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr();
     const meds = DB.get('medications') || [];
     const activeMeds = meds.filter(m => {
       return (!m.start_date || m.start_date <= today) &&
@@ -158,10 +178,15 @@ const Adherence = {
     let totalRecorded = 0;
     let takenCount = 0;
 
+    const slots = ['morning', 'afternoon', 'night'];
     activeMeds.forEach(m => {
-      if (m.morning) { totalScheduled++; if (this.getStatus(m.id, today, 'morning')) totalRecorded++; if (this.getStatus(m.id, today, 'morning') === 'taken') takenCount++; }
-      if (m.afternoon) { totalScheduled++; if (this.getStatus(m.id, today, 'afternoon')) totalRecorded++; if (this.getStatus(m.id, today, 'afternoon') === 'taken') takenCount++; }
-      if (m.night) { totalScheduled++; if (this.getStatus(m.id, today, 'night')) totalRecorded++; if (this.getStatus(m.id, today, 'night') === 'taken') takenCount++; }
+      slots.forEach(slot => {
+        if (!m[slot]) return;
+        totalScheduled++;
+        const status = this.getStatus(m.id, today, slot);
+        if (status) totalRecorded++;
+        if (status === 'taken') takenCount++;
+      });
     });
 
     return {
@@ -174,16 +199,14 @@ const Adherence = {
 
   /* Calculate weekly adherence (last 7 days) */
   getWeeklyStats() {
-    const today = new Date();
     let totalScheduled = 0;
     let takenCount = 0;
     let daysWithRecords = 0;
     const meds = DB.get('medications') || [];
+    const slots = ['morning', 'afternoon', 'night'];
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = daysAgoStr(i);
       const activeMeds = meds.filter(m => {
         return (!m.start_date || m.start_date <= dateStr) &&
                (!m.end_date || m.end_date >= dateStr);
@@ -193,9 +216,11 @@ const Adherence = {
       let dayTaken = 0;
 
       activeMeds.forEach(m => {
-        if (m.morning) { dayScheduled++; if (this.getStatus(m.id, dateStr, 'morning') === 'taken') dayTaken++; }
-        if (m.afternoon) { dayScheduled++; if (this.getStatus(m.id, dateStr, 'afternoon') === 'taken') dayTaken++; }
-        if (m.night) { dayScheduled++; if (this.getStatus(m.id, dateStr, 'night') === 'taken') dayTaken++; }
+        slots.forEach(slot => {
+          if (!m[slot]) return;
+          dayScheduled++;
+          if (this.getStatus(m.id, dateStr, slot) === 'taken') dayTaken++;
+        });
       });
 
       totalScheduled += dayScheduled;

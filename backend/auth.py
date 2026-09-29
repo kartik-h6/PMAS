@@ -9,6 +9,7 @@ from typing import Optional
 from uuid import UUID
 import jwt
 from fastapi import Depends, HTTPException, status
+from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -22,13 +23,11 @@ JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 
 security = HTTPBearer()
 
-
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
     import bcrypt
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
-
 
 def verify_password(password: str, password_hash: str) -> bool:
     """Verify a password against its hash."""
@@ -39,6 +38,19 @@ def verify_password(password: str, password_hash: str) -> bool:
         return False
 
 
+# ─── Async wrappers (event-loop safety) ────────────────────
+# bcrypt is pure CPU work (~100-300 ms per call). Called directly inside an
+# `async def` endpoint it BLOCKS the event loop: every concurrent request
+# (including dose recording by other patients) stalls until the hash
+# finishes. These wrappers move the work onto the threadpool so the server
+# keeps serving while bcrypt runs. Use these from async endpoints.
+async def hash_password_async(password: str) -> str:
+    return await run_in_threadpool(hash_password, password)
+
+
+async def verify_password_async(password: str, password_hash: str) -> bool:
+    return await run_in_threadpool(verify_password, password, password_hash)
+
 def create_access_token(user_id: UUID, role: str) -> str:
     """Create a JWT access token."""
     payload = {
@@ -48,7 +60,6 @@ def create_access_token(user_id: UUID, role: str) -> str:
         "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRY_HOURS)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
 
 def decode_access_token(token: str) -> dict:
     """Decode and validate a JWT token."""
@@ -65,7 +76,6 @@ def decode_access_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
-
 
 # ─── Dependencies ───────────────────────────────────────────
 
@@ -87,7 +97,6 @@ async def get_current_user(
         )
     return user
 
-
 async def require_pharmacist(
     user: User = Depends(get_current_user)
 ) -> User:
@@ -101,7 +110,6 @@ async def require_pharmacist(
             detail="Pharmacist access required"
         )
     return user
-
 
 async def require_admin(
     user: User = Depends(get_current_user)
