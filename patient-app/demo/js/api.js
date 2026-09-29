@@ -118,16 +118,9 @@ const API = {
   /* ── Adherence ─────────────────────────────────────────── */
 
   async recordAdherence(medId, doseDate, slot, status) {
-    // Always save to localStorage immediately (offline-first)
-    const localKey = 'pmas_adherence';
-    let records = JSON.parse(localStorage.getItem(localKey) || '[]');
-    const idx = records.findIndex(r =>
-      r.med_id === medId && r.date === doseDate && r.slot === slot
-    );
-    const entry = { med_id: medId, date: doseDate, slot, status, ts: new Date().toISOString() };
-    if (idx >= 0) records[idx] = entry;
-    else records.push(entry);
-    localStorage.setItem(localKey, JSON.stringify(records));
+    // Always save to localStorage immediately (offline-first) — through
+    // the shared Adherence layer so the in-memory cache stays consistent
+    Adherence.record(medId, doseDate, slot, status);
 
     // Try to sync to server
     if (this.isOnline && this.token) {
@@ -382,7 +375,7 @@ const API = {
   /* ── Local fallback calculations ──────────────────────── */
 
   _localTodayAdherence() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr();
     const meds = JSON.parse(localStorage.getItem('pmas_medications') || '[]');
     const records = JSON.parse(localStorage.getItem('pmas_adherence') || '[]')
       .filter(r => r.date === today);
@@ -403,15 +396,12 @@ const API = {
   },
 
   _localWeeklyAdherence() {
-    const today = new Date();
     let scheduled = 0, taken = 0;
     const meds = JSON.parse(localStorage.getItem('pmas_medications') || '[]');
     const records = JSON.parse(localStorage.getItem('pmas_adherence') || '[]');
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = daysAgoStr(i);
       const dayRecords = records.filter(r => r.date === dateStr);
       meds.forEach(m => {
         if (m.morning) scheduled++;
