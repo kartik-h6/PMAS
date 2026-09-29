@@ -4,7 +4,7 @@ PMAS is an AI-assisted project, consistent with modern development practice and 
 
 ## Summary
 
-The project's **conception, clinical reasoning, and all decisions of substance** are the author's (Kartik H., B.Pharm). AI assistants (LLM-based coding and writing assistants, including Sarvam AI tooling) were used to accelerate implementation and documentation, always under the author's direction and review.
+The project's **conception, clinical reasoning, and all decisions of substance** are the author's (Kartik H, B.Pharm). AI assistants (LLM-based coding and writing assistants, including Sarvam AI tooling) were used to accelerate implementation and documentation, always under the author's direction and review.
 
 ## What AI helped with
 

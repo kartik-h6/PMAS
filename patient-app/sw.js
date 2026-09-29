@@ -3,25 +3,25 @@
    PWA offline capability for the platform site itself.
    Caches app shell and serves from cache when offline.
    ═══════════════════════════════════════════════════════════════ */
-const CACHE_NAME = 'pmas-platform';
+const CACHE_NAME = 'pmas-platform_v5';
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/about.html',
-  '/contact.html',
-  '/privacy.html',
-  '/terms.html',
-  '/404.html',
-  '/assets/css/style.css',
-  '/assets/css/components.css',
-  '/assets/css/utilities.css',
-  '/assets/css/animations.css',
-  '/assets/js/main.js',
-  '/assets/js/navigation.js',
-  '/assets/js/theme.js',
-  '/assets/js/animations.js',
-  '/assets/images/favicon/favicon.png',
-  '/manifest.json'
+  './',
+  './/index.html',
+  './/about.html',
+  './/contact.html',
+  './/privacy.html',
+  './/terms.html',
+  './/404.html',
+  './/assets/css/style.css',
+  './/assets/css/components.css',
+  './/assets/css/utilities.css',
+  './/assets/css/animations.css',
+  './/assets/js/main.js',
+  './/assets/js/navigation.js',
+  './/assets/js/theme.js',
+  './/assets/js/animations.js',
+  './/assets/images/favicon/favicon.png',
+  './/manifest.json'
 ];
 
 /* ── Install: pre-cache app shell ─────────────────────────── */
@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-/* ── Fetch: cache-first for app shell, network-first for rest */
+/* ── Fetch: cache-first for app shell, network-first for rest ─ */
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
           .catch(() => {
             // Offline fallback — serve 404 page for navigations
             if (event.request.mode === 'navigate') {
-              return caches.match('/404.html');
+              return caches.match('./404.html');
             }
           });
       })

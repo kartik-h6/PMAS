@@ -4,7 +4,7 @@
 # Allow all crawlers including AI/LLM bots
 User-agent: *
 Allow: /
-Disallow: /files/
+Disallow: /PMAS/files/
 
 # Explicitly allow AI crawlers (the modern standard)
 User-agent: GPTBot
@@ -29,7 +29,7 @@ User-agent: CCBot
 Allow: /
 
 # Sitemap location
-Sitemap: /sitemap.xml
+Sitemap: https://kartik-h6.github.io/PMAS/sitemap.xml
 
 # llms.txt for AI discovery
 # https://llmstxt.org

@@ -4,7 +4,7 @@ Dual-Vault architecture with SQLAlchemy ORM.
 Vault A: Identity (PII) | Vault B: Clinical & Telemetry (HEOR)
 """
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import (
     create_engine, Column, String, Boolean, Integer, Float, Text,
@@ -45,9 +45,9 @@ class User(Base):
     role = Column(SAEnum(UserRole), default=UserRole.patient, nullable=False)
     preferred_language = Column(String(10), default="en")
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    profile = relationship("PatientProfile", back_populates="user", uselist=False)
+    profile = relationship("PatientProfile", back_populates="user", uselist=False, foreign_keys="PatientProfile.user_id")
     medications = relationship("MedicationPlan", back_populates="patient", foreign_keys="MedicationPlan.patient_id")
 
 
@@ -64,13 +64,19 @@ class PatientProfile(Base):
     blood_group = Column(String(5))
     known_allergies = Column(Text)
     chronic_conditions = Column(Text)
-    consent_timestamp = Column(DateTime(timezone=True), nullable=False)
+    # G10: NULL until the patient attests consent on their own device (§4A);
+    # set once, at attestation time, by the patient app's sync. Never a placeholder.
+    consent_timestamp = Column(DateTime(timezone=True), nullable=True)
     consent_version = Column(String(20), nullable=False)
     consent_checks = Column(JSONB)
     consent_status = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    # The pharmacist who enrolled this patient (NULL for self-registered
+    # patients and legacy rows enrolled before this column existed)
+    enrolled_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    user = relationship("User", back_populates="profile")
+    # foreign_keys is required now that two FKs point at users.id
+    user = relationship("User", back_populates="profile", foreign_keys=[user_id])
 
 
 # ─── VAULT B: CLINICAL & TELEMETRY ──────────────────────────
@@ -92,7 +98,7 @@ class MedicationPlan(Base):
     end_date = Column(Date, nullable=False)
     instructions_localized = Column(Text)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     patient = relationship("User", back_populates="medications", foreign_keys=[patient_id])
     adherence_records = relationship("AdherenceRecord", back_populates="medication")
@@ -106,7 +112,7 @@ class AdherenceRecord(Base):
     dose_date = Column(Date, nullable=False)
     dose_slot = Column(String(10), nullable=False)
     status = Column(SAEnum(DoseStatus), nullable=False)
-    recorded_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    recorded_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     __table_args__ = (UniqueConstraint("patient_id", "medication_id", "dose_date", "dose_slot"),)
 
     medication = relationship("MedicationPlan", back_populates="adherence_records")
@@ -126,7 +132,7 @@ class SymptomTelemetry(Base):
     side_effects = Column(Text)
     additional_notes = Column(Text)
     red_flag_triggered = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 class Appointment(Base):
@@ -139,7 +145,7 @@ class Appointment(Base):
     department = Column(String(100))
     notes = Column(Text)
     status = Column(String(20), default="scheduled")
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 class SecurityAuditTrail(Base):
@@ -149,7 +155,34 @@ class SecurityAuditTrail(Base):
     action = Column(String(100), nullable=False)
     target_resource = Column(String(100), nullable=False)
     ip_address = Column(String(45))
-    timestamp = Column(DateTime(timezone=True), default=datetime.utcnow)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class PendingActivation(Base):
+    """One-time activation code for pharmacist-enrolled patients.
+
+    The pharmacist never sets or sees the patient's password: enrollment
+    leaves the account inactive with a hashed activation code; the patient
+    activates it on their own device and chooses their own password (G8)."""
+    __tablename__ = "pending_activations"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    code_hash = Column(String(128), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class BreakGlassAccess(Base):
+    """Exceptional admin access to a patient's clinical data (G9).
+
+    Routine clinical access is pharmacist-only; an admin reaching patient data
+    must state a reason, which is persisted here and in the audit trail."""
+    __tablename__ = "break_glass_access"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    performed_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    patient_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    reason = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 class StudyMetadata(Base):
@@ -158,7 +191,7 @@ class StudyMetadata(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True)
     study_id = Column(String(20), unique=True, nullable=False)
     baseline_date = Column(Date)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 # ─── Database session dependency ────────────────────────────
