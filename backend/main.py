@@ -6,6 +6,7 @@ Dual-Vault architecture: Vault A (PII) | Vault B (Clinical & HEOR)
 import os
 import secrets
 from datetime import date, datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from uuid import uuid4, UUID
 from typing import List, Optional
 
@@ -29,13 +30,26 @@ from schemas import (
     EnrollmentResponse, PasswordChange, ActivationRequest, BreakGlassRequest
 )
 from auth import (
-    hash_password, verify_password, create_access_token,
+    hash_password_async, verify_password_async, create_access_token,
     get_current_user, require_pharmacist, require_admin
 )
 
 from dotenv import load_dotenv
 load_dotenv()
 
+
+# ─── Study-local calendar dates ─────────────────────────────
+# All PMAS calendar dates (baseline, dose dates, "today" windows) are
+# study-local dates, NOT UTC dates. Servers typically run in UTC (Render
+# does), where date.today() rolls over at 05:30 IST — a night dose taken
+# at 00:30 IST would land on the previous day. The patient app computes
+# local dates on-device; the backend must agree with it. PMAS_TIMEZONE
+# lets a study in another region override the default (Asia/Kolkata).
+STUDY_TZ = ZoneInfo(os.getenv("PMAS_TIMEZONE", "Asia/Kolkata"))
+
+def today_local() -> date:
+    """Today's calendar date in the study timezone (IST by default)."""
+    return datetime.now(STUDY_TZ).date()
 
 # ─── Lifespan: configuration guard + table creation ──────────
 @asynccontextmanager
@@ -62,7 +76,7 @@ async def lifespan(_: FastAPI):
             if not result.scalars().first():
                 db.add(User(
                     phone_number=admin_phone,
-                    password_hash=hash_password(admin_password),
+                    password_hash=await hash_password_async(admin_password),
                     role=UserRole.admin
                 ))
                 await db.commit()
@@ -97,7 +111,6 @@ async def health_check():
     return {"status": "ACTIVE", "system": "PMAS Cloud Core", "privacy_posture": "dpdp_aligned_design"}
 
 
-
 # ═══════════════════════════════════════════════════════════════
 # AUTHENTICATION
 # ═══════════════════════════════════════════════════════════════
@@ -115,7 +128,7 @@ async def register(user_data: UserRegister, request: Request, db: AsyncSession =
 
     user = User(
         phone_number=user_data.phone_number,
-        password_hash=hash_password(user_data.password),
+        password_hash=await hash_password_async(user_data.password),
         role=UserRole.patient,
         preferred_language=user_data.preferred_language
     )
@@ -130,7 +143,7 @@ async def register(user_data: UserRegister, request: Request, db: AsyncSession =
         study_meta = StudyMetadata(
             user_id=user.id,
             study_id=f"PMAS-{str(uuid4().int)[:6]}",
-            baseline_date=date.today()
+            baseline_date=today_local()
         )
         db.add(study_meta)
 
@@ -139,7 +152,6 @@ async def register(user_data: UserRegister, request: Request, db: AsyncSession =
 
     token = create_access_token(user.id, user.role.value)
     return TokenResponse(access_token=token, role=user.role.value, user_id=str(user.id))
-
 
 # ─── Activation throttling (in-process, per phone; reset on success) ──
 _failed_activations: dict = {}
@@ -180,7 +192,7 @@ async def login(credentials: UserLogin, request: Request, db: AsyncSession = Dep
     result = await db.execute(select(User).where(User.phone_number == phone))
     user = result.scalar_one_or_none()
 
-    if not user or not verify_password(credentials.password, user.password_hash):
+    if not user or not await verify_password_async(credentials.password, user.password_hash):
         _register_failed_login(phone)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -225,7 +237,7 @@ async def activate_account(
         )
         pending = p_result.scalar_one_or_none()
 
-    if not user or not pending or not verify_password(data.activation_code, pending.code_hash):
+    if not user or not pending or not await verify_password_async(data.activation_code, pending.code_hash):
         _register_failed_activation(phone)
         raise HTTPException(status_code=400, detail="Invalid phone number or activation code")
 
@@ -235,7 +247,7 @@ async def activate_account(
     if datetime.now(timezone.utc) > expires_at:
         raise HTTPException(status_code=410, detail="Activation code expired. Ask your pharmacist to re-enroll you.")
 
-    user.password_hash = hash_password(data.new_password)
+    user.password_hash = await hash_password_async(data.new_password)
     user.is_active = True
     await db.delete(pending)
     _failed_activations.pop(phone, None)
@@ -254,9 +266,9 @@ async def change_password(
     db: AsyncSession = Depends(get_db)
 ):
     """Change the current user's password (enrolled patients use this on first login)."""
-    if not verify_password(data.current_password, user.password_hash):
+    if not await verify_password_async(data.current_password, user.password_hash):
         raise HTTPException(status_code=401, detail="Current password is incorrect")
-    user.password_hash = hash_password(data.new_password)
+    user.password_hash = await hash_password_async(data.new_password)
     db.add(SecurityAuditTrail(performed_by=user.id, action="PASSWORD_CHANGE", target_resource="auth"))
     return {"status": "changed"}
 
@@ -377,7 +389,7 @@ async def record_adherence(
         raise HTTPException(status_code=404, detail="Medication not found")
 
     # Dose date may not be more than one day in the future (timezone tolerance)
-    if record_data.dose_date > date.today() + timedelta(days=1):
+    if record_data.dose_date > today_local() + timedelta(days=1):
         raise HTTPException(status_code=422, detail="Dose date cannot be in the future")
 
     # Check if already exists (upsert)
@@ -415,7 +427,7 @@ async def get_today_adherence(
     db: AsyncSession = Depends(get_db)
 ):
     """Get today's adherence summary for the current patient."""
-    today = date.today()
+    today = today_local()
     meds_result = await db.execute(
         select(MedicationPlan).where(
             and_(
@@ -455,7 +467,7 @@ async def get_weekly_adherence(
     db: AsyncSession = Depends(get_db)
 ):
     """Get weekly adherence summary (last 7 days)."""
-    today = date.today()
+    today = today_local()
     start = today - timedelta(days=6)
 
     meds_result = await db.execute(
@@ -573,7 +585,7 @@ async def get_appointments(
     """Get appointments for the current patient."""
     query = select(Appointment).where(Appointment.patient_id == user.id)
     if upcoming_only:
-        query = query.where(Appointment.appointment_date >= date.today())
+        query = query.where(Appointment.appointment_date >= today_local())
     result = await db.execute(query.order_by(Appointment.appointment_date.desc()))
     return result.scalars().all()
 
@@ -606,7 +618,7 @@ async def enroll_patient(
     # patient activates it with their own chosen password.
     user = User(
         phone_number=enrollment.phone_number,
-        password_hash=hash_password(secrets.token_hex(16)),
+        password_hash=await hash_password_async(secrets.token_hex(16)),
         role=UserRole.patient,
         is_active=False,
         preferred_language=enrollment.preferred_language
@@ -617,7 +629,7 @@ async def enroll_patient(
     activation_code = f"{secrets.randbelow(1000000):06d}"
     db.add(PendingActivation(
         user_id=user.id,
-        code_hash=hash_password(activation_code),
+        code_hash=await hash_password_async(activation_code),
         expires_at=datetime.now(timezone.utc) + timedelta(days=7)
     ))
 
@@ -642,7 +654,7 @@ async def enroll_patient(
     study_meta = StudyMetadata(
         user_id=user.id,
         study_id=f"PMAS-{str(uuid4().int)[:6]}",
-        baseline_date=date.today()
+        baseline_date=today_local()
     )
     db.add(study_meta)
 
@@ -698,16 +710,23 @@ async def pharmacist_dashboard(
         )
     )
 
-    today = date.today()
-    adherence_records = await db.execute(
-        select(AdherenceRecord).where(
+    # Today's adherence: counted in SQL, not in Python — materialising every
+    # adherence row for every enrolled patient per dashboard refresh does not
+    # scale past a few hundred patients.
+    today = today_local()
+    taken_today = await db.scalar(
+        select(func.count(AdherenceRecord.id)).where(
             AdherenceRecord.dose_date == today,
-            AdherenceRecord.patient_id.in_(my_patient_ids)
+            AdherenceRecord.patient_id.in_(my_patient_ids),
+            AdherenceRecord.status == DoseStatus.taken,
         )
-    )
-    records = adherence_records.scalars().all()
-    taken_today = sum(1 for r in records if r.status == DoseStatus.taken)
-    total_today = len(records)
+    ) or 0
+    total_today = await db.scalar(
+        select(func.count(AdherenceRecord.id)).where(
+            AdherenceRecord.dose_date == today,
+            AdherenceRecord.patient_id.in_(my_patient_ids),
+        )
+    ) or 0
     adherence_avg = round((taken_today / total_today * 100), 1) if total_today > 0 else 0
 
     red_flags = await db.scalar(
@@ -794,7 +813,7 @@ async def research_export(
         ip_address=request.client.host if request.client else None
     ))
 
-    study_day = (date.today() - study.baseline_date).days if study.baseline_date else 0
+    study_day = (today_local() - study.baseline_date).days if study.baseline_date else 0
 
     # Adherence records — study_day instead of raw dates
     adh_result = await db.execute(
@@ -890,7 +909,7 @@ async def admin_break_glass(
         select(MedicationPlan).where(MedicationPlan.patient_id == patient.id)
     )).scalars().all()
 
-    today = date.today()
+    today = today_local()
     taken = 0
     expected_slots = 0
     for i in range(7):
@@ -971,7 +990,7 @@ async def admin_create_user(
 
     user = User(
         phone_number=data.phone_number,
-        password_hash=hash_password(data.password),
+        password_hash=await hash_password_async(data.password),
         role=UserRole(data.role),
         preferred_language=data.preferred_language
     )
