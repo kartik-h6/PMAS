@@ -1,0 +1,10 @@
+# Keep secrets, VCS, tests and docs out of the image
+.env
+.env.*
+.git
+.gitignore
+tests/
+docs/
+__pycache__/
+*.pyc
+*.md

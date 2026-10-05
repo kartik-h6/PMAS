@@ -2,10 +2,16 @@
 PMAS — Pydantic Schemas (Data Contracts)
 Request/response validation for all API endpoints.
 """
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import Optional, List, Union
 from datetime import date, datetime
 from uuid import UUID
+
+
+def _canon_phone(v: str) -> str:
+    """Store one canonical form (10-digit) so +91 and bare forms cannot
+    create two accounts for the same number."""
+    return v[3:] if v.startswith("+91") else v
 
 
 # ─── Auth Schemas ───────────────────────────────────────────
@@ -17,6 +23,10 @@ class UserRegister(BaseModel):
     password: str = Field(..., min_length=8, max_length=100)
     preferred_language: str = Field(default="en", max_length=10)
 
+    @field_validator("phone_number")
+    @classmethod
+    def _canon(cls, v: str) -> str:
+        return _canon_phone(v)
 
 class UserLogin(BaseModel):
     phone_number: str = Field(..., pattern=r"^(\+91\d{10}|\d{10})$")
@@ -93,6 +103,10 @@ class AdminUserCreate(BaseModel):
     role: str = Field(..., pattern=r"^(pharmacist|admin)$")
     preferred_language: str = Field(default="en", max_length=10)
 
+    @field_validator("phone_number")
+    @classmethod
+    def _canon(cls, v: str) -> str:
+        return _canon_phone(v)
 
 class AdminUserUpdate(BaseModel):
     role: Optional[str] = Field(None, pattern=r"^(patient|pharmacist|admin)$")
@@ -277,6 +291,10 @@ class PatientEnrollment(BaseModel):
     known_allergies: Optional[str] = None
     chronic_conditions: Optional[str] = None
 
+    @field_validator("phone_number")
+    @classmethod
+    def _canon(cls, v: str) -> str:
+        return _canon_phone(v)
 
 class PharmacistDashboard(BaseModel):
     total_patients: int

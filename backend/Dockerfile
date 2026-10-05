@@ -17,5 +17,9 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
+# Drop privileges: run as an unprivileged user
+RUN useradd --create-home --uid 10001 appuser
+USER appuser
+
 # Run with uvicorn — bind to Render's assigned PORT (falls back to 8000 locally)
 CMD sh -c "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"

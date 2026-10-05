@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 import jwt
+import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,6 +22,10 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 
 security = HTTPBearer()
+
+# Constant-cost decoy: compared against when a user does not exist, so the
+# login/activate response time does not reveal whether a phone is registered.
+_DUMMY_HASH = bcrypt.hashpw(b"pmas-nonexistent-account", bcrypt.gensalt()).decode("utf-8")
 
 
 def hash_password(password: str) -> str:

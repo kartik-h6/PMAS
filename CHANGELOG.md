@@ -4,6 +4,32 @@ All notable changes to PMAS are documented here. The project uses a single produ
 
 ## [Unreleased]
 
+### Security hardening — audit follow-up (5 Oct 2026, maintainer round)
+Follow-up to an independent source-first security audit of `522ba93`. Merged the contributor's
+three verified PRs (#41 session revocation + account recovery, #43 research-export consent-gate
+alignment, #44 sign-out clears the on-device record), then closed the remaining auth-hardening items:
+
+- **Per-source rate limiting** (`source_throttle`, auto-created on deploy): register/login/activate
+  are now capped per client address within a fixed window. The per-phone lockout alone could not
+  stop phone-number enumeration or credential spraying across many accounts, or unauthenticated
+  bcrypt CPU burn on register.
+- **Constant-cost login/activation:** when an account is absent, one bcrypt comparison is still spent
+  against a fixed decoy hash, so response timing no longer reveals whether a phone number is
+  registered (previously ~11x slower for a known number).
+- **Phone canonicalisation:** self-registration, pharmacist enrollment and admin-created staff store
+  the number in one canonical 10-digit form, so the same number as `+91…` can no longer create a
+  second account; all phone lookups match both forms for backward compatibility.
+- **Container hardening:** the backend image now runs as an unprivileged user and ships a
+  `.dockerignore`.
+- **CI hardening:** GitHub Actions are pinned to commit SHAs and `backend-ci.yml` declares
+  `permissions: contents: read`.
+
+Verified by execution on a SQLite shim with dummy principals: same-instant token survives 15/15,
+pre-change token revoked, consent gate accepts genuine v2 consent and rejects forged records,
+`+91` duplicate rejected, login timing ratio 1.04x, source limit trips. Backend suite 20/20, ruff clean.
+
+## [Unreleased]
+
 ### Consent screen fixes (30 Sep 2026, maintainer round)
 - **Fixed (regression from consent v2):** the Continue/Skip buttons and the in-screen language dropdown had ended up **outside** the consent screen container, so they stayed visible over every app section after consent — reported by the owner with screenshots. The DOM structure is rebuilt; verified by strict containment checks (buttons live inside `#consent-screen`, consent screen fully hides after Continue, no consent elements in any app tab).
 - Removed the redundant language-selection dropdown below the checkboxes (the header selector already does this, works pre-consent, and persists the choice).

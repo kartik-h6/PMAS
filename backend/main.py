@@ -23,7 +23,7 @@ from sqlalchemy.exc import IntegrityError
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db, Base, engine, async_session, User, UserRole, PatientProfile, MedicationPlan, AdherenceRecord, DoseStatus, SymptomTelemetry, Appointment, SecurityAuditTrail, StudyMetadata, PendingActivation, BreakGlassAccess, ThrottleState
+from database import get_db, Base, engine, async_session, User, UserRole, PatientProfile, MedicationPlan, AdherenceRecord, DoseStatus, SymptomTelemetry, Appointment, SecurityAuditTrail, StudyMetadata, PendingActivation, BreakGlassAccess, ThrottleState, SourceThrottle
 from schemas import (
     UserRegister, UserLogin, TokenResponse,
     PatientProfileCreate, PatientProfileResponse,
@@ -39,7 +39,7 @@ from schemas import (
 from auth import (
     hash_password, verify_password, create_access_token,
     get_current_user, require_pharmacist, require_admin,
-    JWT_SECRET
+    JWT_SECRET, _DUMMY_HASH
 )
 
 
@@ -153,7 +153,8 @@ async def register(user_data: UserRegister, request: Request, db: AsyncSession =
     # Same DB-backed throttle as login/activate: register runs a bcrypt hash
     # per call, so an unthrottled endpoint is a cheap CPU-burn surface.
     await _throttle_check(db, "register", user_data.phone_number)
-    existing = await db.execute(select(User).where(User.phone_number == user_data.phone_number))
+    await _throttle_check_source(db, "register", request)
+    existing = await db.execute(select(User).where(User.phone_number.in_(phone_variants(user_data.phone_number))))
     if existing.scalar_one_or_none():
         await _throttle_fail(db, "register", user_data.phone_number)
         raise HTTPException(status_code=409, detail="Phone number already registered")
@@ -194,6 +195,42 @@ study_id=f"PMAS-{str(uuid4().int)[:10]}",  # 10-digit space (#31): 6 digits 50%-
 # failures lock that phone for 15 minutes; a success clears the row.
 LOGIN_MAX_FAILURES = 5
 LOGIN_LOCKOUT_MINUTES = 15
+
+# Per-source rate limiting (enumeration / spraying / CPU-burn).
+SOURCE_LIMITS = {"register": 20, "login": 30, "activation": 30}
+SOURCE_WINDOW_MINUTES = 15
+
+
+def phone_variants(phone: str):
+    """Both accepted representations of a number, so lookups match rows
+    written before canonicalisation was added."""
+    p = phone[3:] if phone.startswith("+91") else phone
+    return [p, "+91" + p]
+
+
+async def _throttle_check_source(db: AsyncSession, context: str, request: Request):
+    """Fixed-window per-source cap; raises 429 past the limit."""
+    src = request.client.host if request.client else "unknown"
+    limit = SOURCE_LIMITS.get(context, 30)
+    now = datetime.now(timezone.utc)
+    row = (await db.execute(select(SourceThrottle).where(and_(
+        SourceThrottle.context == context, SourceThrottle.source == src)))).scalar_one_or_none()
+    if row is None:
+        db.add(SourceThrottle(context=context, source=src, window_start=now, count=1))
+        await db.commit()
+        return
+    ws = row.window_start
+    if ws.tzinfo is None:
+        ws = ws.replace(tzinfo=timezone.utc)
+    if now - ws > timedelta(minutes=SOURCE_WINDOW_MINUTES):
+        row.window_start = now
+        row.count = 1
+    else:
+        row.count = (row.count or 0) + 1
+        if row.count > limit:
+            raise HTTPException(status_code=429, detail="Too many requests from this source. Try again later.")
+    db.add(row)
+    await db.commit()
 
 
 async def _throttle_get(db: AsyncSession, context: str, phone: str):
@@ -244,10 +281,15 @@ async def login(credentials: UserLogin, request: Request, db: AsyncSession = Dep
     """Login with phone number and password. Locks out after repeated failures."""
     phone = credentials.phone_number
     await _throttle_check(db, "login", phone)
+    await _throttle_check_source(db, "login", request)
 
-    result = await db.execute(select(User).where(User.phone_number == phone))
+    result = await db.execute(select(User).where(User.phone_number.in_(phone_variants(phone))))
     user = result.scalar_one_or_none()
 
+    if user is None:
+        # Constant-cost decoy: spend one bcrypt comparison so a missing account
+        # is not measurably faster than an existing one.
+        verify_password(credentials.password, _DUMMY_HASH)
     if not user or not verify_password(credentials.password, user.password_hash):
         await _throttle_fail(db, "login", phone)
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -281,8 +323,9 @@ async def activate_account(
     their own password here, on their own device (PRD v1.1 §4A / G8)."""
     phone = data.phone_number
     await _throttle_check(db, "activation", phone)
+    await _throttle_check_source(db, "activation", request)
 
-    result = await db.execute(select(User).where(User.phone_number == phone))
+    result = await db.execute(select(User).where(User.phone_number.in_(phone_variants(phone))))
     user = result.scalar_one_or_none()
     pending = None
     if user:
@@ -291,6 +334,8 @@ async def activate_account(
         )
         pending = p_result.scalar_one_or_none()
 
+    if user is None:
+        verify_password(data.activation_code, _DUMMY_HASH)  # constant-cost decoy
     if not user or not pending or not verify_password(data.activation_code, pending.code_hash):
         await _throttle_fail(db, "activation", phone)
         raise HTTPException(status_code=400, detail="Invalid phone number or activation code")
@@ -671,7 +716,7 @@ async def enroll_patient(
     Consent is NOT granted here: the patient consents on their own device
     and the patient app attests the consent record when it first syncs.
     """
-    existing = await db.execute(select(User).where(User.phone_number == enrollment.phone_number))
+    existing = await db.execute(select(User).where(User.phone_number.in_(phone_variants(enrollment.phone_number))))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Patient already enrolled")
 
@@ -755,7 +800,7 @@ async def reissue_activation(
     enrolled (same scope as the dashboard). Self-registered patients are
     not covered by this endpoint — open design decision, see issue #40.
     """
-    result = await db.execute(select(User).where(User.phone_number == data.phone_number))
+    result = await db.execute(select(User).where(User.phone_number.in_(phone_variants(data.phone_number))))
     patient = result.scalar_one_or_none()
 
     profile = None
@@ -1026,7 +1071,7 @@ async def admin_break_glass(
     if len(data.reason.strip()) < 10:
         raise HTTPException(status_code=422, detail="A written reason (at least 10 characters) is required")
 
-    result = await db.execute(select(User).where(User.phone_number == data.phone_number))
+    result = await db.execute(select(User).where(User.phone_number.in_(phone_variants(data.phone_number))))
     patient = result.scalar_one_or_none()
     if not patient or patient.role != UserRole.patient:
         raise HTTPException(status_code=404, detail="Patient not found")
@@ -1117,7 +1162,7 @@ async def admin_create_user(
     db: AsyncSession = Depends(get_db)
 ):
     """Create a staff (pharmacist/admin) account. Administrator only; audit-logged."""
-    existing = await db.execute(select(User).where(User.phone_number == data.phone_number))
+    existing = await db.execute(select(User).where(User.phone_number.in_(phone_variants(data.phone_number))))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Phone number already registered")
 

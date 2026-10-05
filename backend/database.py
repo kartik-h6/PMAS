@@ -191,6 +191,23 @@ class ThrottleState(Base):
     __table_args__ = (UniqueConstraint("context", "phone_number", name="uq_throttle_context_phone"),)
 
 
+class SourceThrottle(Base):
+    """Per-source (IP) rate limiting.
+
+    The per-phone lockout cannot stop enumeration or credential spraying
+    across many accounts, because one guess per distinct phone never trips
+    it. This bounds requests per source address within a fixed window.
+    Auto-created by Base.metadata.create_all on deploy.
+    """
+    __tablename__ = "source_throttle"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    context = Column(String(20), nullable=False)   # 'register' | 'login' | 'activation'
+    source = Column(String(45), nullable=False, index=True)  # client IP (IPv4/IPv6)
+    window_start = Column(DateTime(timezone=True), nullable=False)
+    count = Column(Integer, nullable=False, default=0)
+    __table_args__ = (UniqueConstraint("context", "source", name="uq_source_throttle_context_source"),)
+
+
 class BreakGlassAccess(Base):
     """Exceptional admin access to a patient's clinical data (G9).
 
