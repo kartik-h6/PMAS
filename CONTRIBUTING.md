@@ -28,6 +28,19 @@ Every PR is verified by execution before merge — the maintainers run the
 code, not just read the diff. Expect review comments asking for verification
 steps; that is the project's quality bar, not a judgment of your work.
 
+## Clinical feature change control
+
+PMAS's intended use is fixed in `docs/14-regulatory-position-cdsco-2026.md` §2 and
+`docs/adr/ADR-002-regulatory-classification.md`. A pull request must **not** add:
+
+- symptom, laboratory-value or diagnosis interpretation, or triage;
+- dose calculation, dose recommendation, or dose adjustment by the software;
+- clinical-outcome claims in the app, the site, or the copy;
+- alerts or escalation logic that directs clinical action without a clinician.
+
+If a proposal genuinely needs one of these, open an issue for an intended-use and
+risk re-assessment first. That is a scope decision, not a routine PR.
+
 ## License for contributions
 
 PMAS itself does not yet adopt an open-source license. **By submitting a
